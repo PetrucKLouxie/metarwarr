@@ -552,9 +552,8 @@ line-height:1.6;
 """, unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns([2,3,2])
-
 with col2:
-    copy_html = f"""
+copy_html = f"""
 <div style="text-align:center; margin-top:20px;">
     <button onclick="copyText()" 
         style="
@@ -624,6 +623,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
