@@ -125,6 +125,86 @@ def parse_metar(metar):
             data["trend"] = part
 
     return data
+# =========================
+# GENERATE TEXT
+# =========================
+
+def generate_metar_narrative(parsed, tempo=None):
+
+    if not parsed["station"]:
+        return "Data METAR tidak valid."
+
+    text = []
+
+    # Intro
+    text.append(
+        f"Observasi cuaca di Bandara {parsed['station']} "
+        f"pada tanggal {parsed['day']} pukul {parsed['hour']}:{parsed['minute']} UTC menunjukkan kondisi berikut:"
+    )
+
+    # Wind
+    if parsed["wind_dir"] and parsed["wind_speed_kt"]:
+        text.append(
+            f"Angin bertiup dari arah {parsed['wind_dir']} derajat "
+            f"dengan kecepatan {parsed['wind_speed_kt']} knot."
+        )
+
+    # Visibility
+    if parsed["visibility_m"]:
+        km = parsed["visibility_m"] / 1000
+        text.append(f"Jarak pandang tercatat sekitar {km:.1f} kilometer.")
+
+    # Weather
+    weather_map = {
+        "HZ": "kabut asap (haze)",
+        "RA": "hujan",
+        "+RA": "hujan lebat",
+        "-RA": "hujan ringan",
+        "TSRA": "badai petir disertai hujan",
+        "+TSRA": "badai petir kuat disertai hujan"
+    }
+
+    if parsed["weather"]:
+        weather_desc = weather_map.get(parsed["weather"], parsed["weather"])
+        text.append(f"Terdapat fenomena cuaca berupa {weather_desc}.")
+
+    # Cloud
+    if parsed["cloud"]:
+        amount = parsed["cloud"][:3]
+        height = int(parsed["cloud"][3:6]) * 100
+
+        cloud_map = {
+            "FEW": "awan sedikit",
+            "SCT": "awan tersebar",
+            "BKN": "awan pecah",
+            "OVC": "awan mendung penuh"
+        }
+
+        cloud_desc = cloud_map.get(amount, "awan")
+        text.append(f"{cloud_desc.capitalize()} terdeteksi pada ketinggian sekitar {height} kaki.")
+
+    # Temperature
+    if parsed["temperature_c"] and parsed["dewpoint_c"]:
+        text.append(
+            f"Suhu udara {parsed['temperature_c']}°C "
+            f"dengan titik embun {parsed['dewpoint_c']}°C."
+        )
+
+    # Pressure
+    if parsed["pressure_hpa"]:
+        text.append(f"Tekanan udara tercatat {parsed['pressure_hpa']} hPa.")
+
+    # Trend
+    if tempo:
+        text.append(
+            f"Secara temporer hingga pukul {tempo['until']} UTC "
+            f"diperkirakan jarak pandang {tempo['visibility']} meter "
+            f"dengan kondisi {tempo['weather']}."
+        )
+    elif parsed["trend"] == "NOSIG":
+        text.append("Tidak terdapat perubahan signifikan dalam waktu dekat.")
+
+    return " ".join(text)
 
 # =========================
 # CSV SETUP
@@ -166,6 +246,11 @@ if len(df_history) > 0:
 
     parsed = parse_metar(latest["metar"])
     tempo = parse_tempo_section(latest["metar"])
+    narrative = generate_metar_narrative(parsed, tempo)
+
+st.markdown("---")
+st.subheader("🧠 Interpretasi METAR (Narasi Otomatis)")
+st.write(narrative)
 
     # =========================
     # FORMAT QAM
@@ -249,3 +334,4 @@ if os.path.exists(CSV_FILE):
             file_name="metar_history.csv",
             mime="text/csv"
         )
+
