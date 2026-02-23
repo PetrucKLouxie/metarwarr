@@ -417,8 +417,8 @@ TREND   : {trend_text}
 
         # SEND WA
         status = send_whatsapp_message(full_message)
-            if status == 200:
-                st.success("Notifikasi WA terkirim!")
+        if status == 200:
+            st.success("Notifikasi WA terkirim!")
 
 # =========================
 # DISPLAY LATEST
@@ -624,6 +624,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
