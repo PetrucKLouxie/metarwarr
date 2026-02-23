@@ -7,11 +7,14 @@ import streamlit.components.v1 as components
 from datetime import datetime, timezone
 from streamlit_autorefresh import st_autorefresh
 
+# =========================
+# CONFIG PAGE
+# =========================
 st.set_page_config(page_title="METAR Realtime Global", layout="wide")
 st.title("🌍 METAR Real-Time Dashboard")
 
 # =========================
-# AUTO REFRESH 10 MENIT
+# AUTO REFRESH 1 MENIT
 # =========================
 st_autorefresh(interval=60000, key="refresh")
 
@@ -21,7 +24,7 @@ st_autorefresh(interval=60000, key="refresh")
 station_code = st.text_input("Masukkan Kode ICAO", value="WARR")
 
 # =========================
-# GET METAR
+# GET METAR FROM NOAA
 # =========================
 def get_metar(station_code):
     try:
@@ -30,14 +33,14 @@ def get_metar(station_code):
 
         if response.status_code == 200:
             lines = response.text.strip().split("\n")
-            return lines[-1]  # ambil baris METAR terakhir
+            return lines[-1]
 
         return None
     except:
         return None
 
 # =========================
-# ROUND UTC TIME 00 / 30
+# ROUND UTC 00 / 30
 # =========================
 def get_rounded_utc_time():
     now = datetime.now(timezone.utc)
@@ -126,10 +129,10 @@ def parse_metar(metar):
             data["trend"] = part
 
     return data
-# =========================
-# GENERATE TEXT
-# =========================
 
+# =========================
+# GENERATE NARRATIVE TEXT
+# =========================
 def generate_metar_narrative(parsed, tempo=None):
 
     if not parsed["station"]:
@@ -137,27 +140,23 @@ def generate_metar_narrative(parsed, tempo=None):
 
     text = []
 
-    # Intro
     text.append(
         f"Observasi cuaca di Bandara {parsed['station']} "
         f"pada tanggal {parsed['day']} pukul {parsed['hour']}:{parsed['minute']} UTC menunjukkan kondisi berikut:"
     )
 
-    # Wind
     if parsed["wind_dir"] and parsed["wind_speed_kt"]:
         text.append(
-            f"Angin bertiup dari arah {parsed['wind_dir']} derajat "
+            f"Angin dari arah {parsed['wind_dir']} derajat "
             f"dengan kecepatan {parsed['wind_speed_kt']} knot."
         )
 
-    # Visibility
     if parsed["visibility_m"]:
         km = parsed["visibility_m"] / 1000
-        text.append(f"Jarak pandang tercatat sekitar {km:.1f} kilometer.")
+        text.append(f"Jarak pandang sekitar {km:.1f} kilometer.")
 
-    # Weather
     weather_map = {
-        "HZ": "kabut asap (haze)",
+        "HZ": "kabut asap",
         "RA": "hujan",
         "+RA": "hujan lebat",
         "-RA": "hujan ringan",
@@ -166,46 +165,53 @@ def generate_metar_narrative(parsed, tempo=None):
     }
 
     if parsed["weather"]:
-        weather_desc = weather_map.get(parsed["weather"], parsed["weather"])
-        text.append(f"Terdapat fenomena cuaca berupa {weather_desc}.")
+        desc = weather_map.get(parsed["weather"], parsed["weather"])
+        text.append(f"Terdapat fenomena cuaca berupa {desc}.")
 
-    # Cloud
     if parsed["cloud"]:
         amount = parsed["cloud"][:3]
         height = int(parsed["cloud"][3:6]) * 100
+        text.append(f"Awan {amount} pada ketinggian {height} kaki.")
 
-        cloud_map = {
-            "FEW": "awan sedikit",
-            "SCT": "awan tersebar",
-            "BKN": "awan pecah",
-            "OVC": "awan mendung penuh"
-        }
-
-        cloud_desc = cloud_map.get(amount, "awan")
-        text.append(f"{cloud_desc.capitalize()} terdeteksi pada ketinggian sekitar {height} kaki.")
-
-    # Temperature
     if parsed["temperature_c"] and parsed["dewpoint_c"]:
         text.append(
-            f"Suhu udara {parsed['temperature_c']}°C "
-            f"dengan titik embun {parsed['dewpoint_c']}°C."
+            f"Suhu {parsed['temperature_c']}°C dengan titik embun {parsed['dewpoint_c']}°C."
         )
 
-    # Pressure
     if parsed["pressure_hpa"]:
-        text.append(f"Tekanan udara tercatat {parsed['pressure_hpa']} hPa.")
+        text.append(f"Tekanan udara {parsed['pressure_hpa']} hPa.")
 
-    # Trend
     if tempo:
         text.append(
-            f"Secara temporer hingga pukul {tempo['until']} UTC "
-            f"diperkirakan jarak pandang {tempo['visibility']} meter "
-            f"dengan kondisi {tempo['weather']}."
+            f"Hingga {tempo['until']} UTC diperkirakan visibilitas "
+            f"{tempo['visibility']} meter dengan kondisi {tempo['weather']}."
         )
     elif parsed["trend"] == "NOSIG":
-        text.append("Tidak terdapat perubahan signifikan dalam waktu dekat.")
+        text.append("Tidak ada perubahan signifikan dalam waktu dekat.")
 
     return " ".join(text)
+
+# =========================
+# SEND WHATSAPP
+# =========================
+def send_whatsapp_message(message):
+    try:
+        url = "https://api.fonnte.com/send"
+
+        headers = {
+            "Authorization": st.secrets["FONNTE_TOKEN"]
+        }
+
+        data = {
+            "target": "6282126910641",
+            "message": message
+        }
+
+        response = requests.post(url, headers=headers, data=data)
+        return response.status_code
+
+    except Exception as e:
+        return None
 
 # =========================
 # CSV SETUP
@@ -219,87 +225,36 @@ else:
     df_history = pd.read_csv(CSV_FILE)
 
 # =========================
-# NOTIF WA
-# =========================
-
-def send_whatsapp_message(message):
-
-    url = "https://api.fonnte.com/send"
-
-    headers = {
-        "Authorization": st.secrets["FONNTE_TOKEN"]
-    }
-
-    data = {
-        "target": "6282126910641",  # nomor tujuan
-        "message": message
-    }
-
-    response = requests.post(url, headers=headers, data=data)
-
-    return response.status_code
-
-# =========================
 # GET DATA
 # =========================
 metar_data = get_metar(station_code)
 
 if metar_data:
     if len(df_history) == 0 or df_history.iloc[-1]["metar"] != metar_data:
-        new_row = {
-            "station": station_code.upper(),
-            "time": get_rounded_utc_time(),
-            "metar": metar_data
-        }
 
-        df_history = pd.concat([df_history, pd.DataFrame([new_row])], ignore_index=True)
-        df_history.to_csv(CSV_FILE, index=False)
+        parsed = parse_metar(metar_data)
+        tempo = parse_tempo_section(metar_data)
+        narrative = generate_metar_narrative(parsed, tempo)
 
-        st.success("Data baru ditambahkan ke histori")
-        status = send_whatsapp_message(full_message)
-        if status == 200:
-            st.success("Notifikasi WA terkirim!")
+        # QAM FORMAT
+        date_str = f"{parsed['day']}/{datetime.utcnow().strftime('%m/%Y')}" if parsed['day'] else "-"
+        time_str = f"{parsed['hour']}.{parsed['minute']}" if parsed['hour'] else "-"
 
-# =========================
-# DISPLAY LATEST
-# =========================
-if len(df_history) > 0:
+        wind = f"{parsed['wind_dir']}°/{parsed['wind_speed_kt']} KT" if parsed['wind_dir'] else "NIL"
+        vis = f"{int(parsed['visibility_m']/1000)} KM" if parsed['visibility_m'] else "NIL"
 
-    latest = df_history.iloc[-1]
-    st.subheader(f"📡 METAR Terbaru - {latest['station']}")
-    st.code(latest["metar"])
+        cloud = "-"
+        if parsed["cloud"]:
+            amount = parsed["cloud"][:3]
+            height = int(parsed["cloud"][3:6]) * 100
+            cloud = f"{amount} {height}FT"
 
-    parsed = parse_metar(latest["metar"])
-    tempo = parse_tempo_section(latest["metar"])
-    narrative = generate_metar_narrative(parsed, tempo)
-
-    st.markdown("---")
-    st.subheader("🧠 Interpretasi METAR (Narasi Otomatis)")
-    st.write(narrative)
-
-    # =========================
-    # FORMAT QAM
-    # =========================
-
-    date_str = f"{parsed['day']}/{datetime.utcnow().strftime('%m/%Y')}" if parsed['day'] else "-"
-    time_str = f"{parsed['hour']}.{parsed['minute']}" if parsed['hour'] else "-"
-
-    wind = f"{parsed['wind_dir']}°/{parsed['wind_speed_kt']} KT" if parsed['wind_dir'] else "NIL"
-    vis = f"{int(parsed['visibility_m']/1000)} KM" if parsed['visibility_m'] else "NIL"
-
-    cloud = "-"
-    if parsed["cloud"]:
-        amount = parsed["cloud"][:3]
-        height = int(parsed["cloud"][3:6]) * 100
-        cloud = f"{amount} {height}FT"
-
-    if tempo:
-        trend_text = f"TEMPO TL{tempo['until']} {tempo['visibility']} {tempo['weather']}"
-    else:
         trend_text = parsed["trend"] if parsed["trend"] else "NIL"
+        if tempo:
+            trend_text = f"TEMPO TL{tempo['until']} {tempo['visibility']} {tempo['weather']}"
 
-    qam_report = f"""MET REPORT (QAM)
-BANDARA {latest['station']}
+        qam_report = f"""MET REPORT (QAM)
+BANDARA {station_code.upper()}
 DATE : {date_str}
 TIME : {time_str} UTC
 ========================
@@ -314,50 +269,48 @@ REMARKS : NIL
 TREND   : {trend_text}
 """
 
+        full_message = f"""📡 METAR UPDATE
+
+{qam_report}
+
+🧠 Interpretasi:
+{narrative}
+"""
+
+        # SAVE CSV
+        new_row = {
+            "station": station_code.upper(),
+            "time": get_rounded_utc_time(),
+            "metar": metar_data
+        }
+
+        df_history = pd.concat([df_history, pd.DataFrame([new_row])], ignore_index=True)
+        df_history.to_csv(CSV_FILE, index=False)
+
+        st.success("Data baru ditambahkan ke histori")
+
+        # SEND WA
+        status = send_whatsapp_message(full_message)
+        if status == 200:
+            st.success("Notifikasi WA terkirim!")
+
+# =========================
+# DISPLAY LATEST
+# =========================
+if len(df_history) > 0:
+
+    latest = df_history.iloc[-1]
+    parsed = parse_metar(latest["metar"])
+    tempo = parse_tempo_section(latest["metar"])
+    narrative = generate_metar_narrative(parsed, tempo)
+
+    st.subheader(f"📡 METAR Terbaru - {latest['station']}")
+    st.code(latest["metar"])
+
     st.markdown("---")
-    st.subheader("🧾 Format QAM (Siap Copy)")
-    st.text_area("QAM Output", qam_report, height=300)
-    if st.button("📋 Copy QAM Text"):
-        copy_script = f"""
-        <script>
-        navigator.clipboard.writeText(`{qam_report}`);
-        </script>
-        """
-        st.components.v1.html(copy_script)
-        st.success("QAM berhasil dicopy ke clipboard!")
+    st.subheader("🧠 Interpretasi METAR")
+    st.write(narrative)
 
-    # =========================
-    # METRICS
-    # =========================
-    st.markdown("### 📊 Detail Cuaca")
-
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.metric("🌡 Suhu (°C)", parsed["temperature_c"])
-        st.metric("💧 Dew Point (°C)", parsed["dewpoint_c"])
-
-    with col2:
-        st.metric("💨 Wind Direction (°)", parsed["wind_dir"])
-        st.metric("💨 Wind Speed (KT)", parsed["wind_speed_kt"])
-
-    with col3:
-        st.metric("👁 Visibility (m)", parsed["visibility_m"])
-        st.metric("📊 Pressure (hPa)", parsed["pressure_hpa"])
-
-# =========================
-# HISTORY TABLE
-# =========================
-st.markdown("---")
-st.subheader("📜 Histori METAR (CSV)")
-st.dataframe(df_history.tail(20), use_container_width=True)
-
-if os.path.exists(CSV_FILE):
-    with open(CSV_FILE, "rb") as file:
-        st.download_button(
-            label="⬇ Download CSV",
-            data=file,
-            file_name="metar_history.csv",
-            mime="text/csv"
-        )
-
+    st.markdown("---")
+    st.subheader("📜 Histori METAR")
+    st.dataframe(df_history.tail(20), use_container_width=True)
