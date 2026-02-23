@@ -324,24 +324,21 @@ def generate_metar_narrative(parsed, tempo=None):
 # SEND WHATSAPP
 # =========================
 def send_whatsapp_message(message):
-    try:
-        url = "https://api.fonnte.com/send"
 
-        headers = {
-            "Authorization": st.secrets["FONNTE_TOKEN"]
-        }
+    url = "https://api.fonnte.com/send"
 
-        data = {
-            "target": "6282126910641",
-            "message": message
-        }
+    headers = {
+        "Authorization": st.secrets["FONNTE_TOKEN"]
+    }
 
-        response = requests.post(url, headers=headers, data=data)
-        return response.status_code
+    data = {
+        "target": "6282126910641",
+        "message": message
+    }
 
-    except Exception as e:
-        return None
+    response = requests.post(url, headers=headers, data=data)
 
+    return response.status_code, response.text
 # =========================
 # CSV SETUP
 # =========================
@@ -419,10 +416,10 @@ TREND   : {trend_text}
         st.success("Data baru ditambahkan ke histori")
 
         # SEND WA
-        status = send_whatsapp_message(full_message)
-        if status == 200:
-            st.success("Notifikasi WA terkirim!")
+        status, result = send_whatsapp_message(full_message)
 
+        st.write("Status:", status)
+        st.write("Response:", result)
 # =========================
 # DISPLAY LATEST
 # =========================
@@ -627,6 +624,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
