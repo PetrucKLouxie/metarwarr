@@ -16,9 +16,6 @@ st.markdown("""
 <h1 style='text-align: center; color: #00FFAA;'>
 🛫 METAR REAL-TIME MONITORING SYSTEM
 </h1>
-<p style='text-align: center; color: #AAAAAA;'>
-Aviation Weather Intelligence Dashboard
-</p>
 """, unsafe_allow_html=True)
 st.markdown("""
 <h2 style='text-align:center; color:#00FFAA;'>
@@ -687,6 +684,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
