@@ -16,9 +16,7 @@ st.markdown("""
 <h1 style='text-align: center; color: #00FFAA;'>
 🛫 METAR REAL-TIME MONITORING SYSTEM
 </h1>
-""", unsafe_allow_html=True)
-st.markdown("""
-<h3 style='text-align:center; color:#00FFAA;'>
+<h3 style='text-align:center; color:#DCDCDC;'>
 📍 JUANDA INTERNATIONAL AIRPORT (WARR)
 </h3>
 <p style='text-align:center; color:#AAAAAA;'>
@@ -684,6 +682,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
