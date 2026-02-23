@@ -4,7 +4,7 @@ import pandas as pd
 import os
 import re
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="METAR Realtime Global", layout="wide")
@@ -40,6 +40,15 @@ def get_metar(station_code):
     except Exception as e:
         return None
 
+def get_rounded_utc_time():
+    now = datetime.now(timezone.utc)
+
+    minute = 30 if now.minute >= 30 else 0
+
+    rounded_time = now.replace(minute=minute, second=0, microsecond=0)
+
+    return rounded_time.strftime("%Y-%m-%d %H:%M UTC")
+
 # =========================
 # FILE CSV
 # =========================
@@ -64,7 +73,7 @@ if metar_data:
 
         new_row = {
             "station": station_code.upper(),
-            "time": datetime.now(),
+            "time": get_rounded_utc_time(),
             "metar": metar_data
         }
 
@@ -260,4 +269,5 @@ if os.path.exists(CSV_FILE):
             mime="text/csv"
         )
     st.info(f"🕒 Waktu Simpan: {latest['time']}")
+
 
