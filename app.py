@@ -22,6 +22,44 @@ Aviation Weather Intelligence Dashboard
 
 st.markdown("""
 <style>
+st.markdown("""
+<style>
+
+/* Expander background */
+[data-testid="stExpander"] {
+    background-color: #0F172A !important;
+    border: 1px solid #1F2937 !important;
+    border-radius: 15px !important;
+}
+
+/* Expander header */
+[data-testid="stExpander"] > div:first-child {
+    background-color: #111827 !important;
+    color: #00FFAA !important;
+}
+
+/* Dataframe container */
+[data-testid="stDataFrame"] {
+    background-color: #0F172A !important;
+    color: white !important;
+}
+
+/* Table header */
+thead tr th {
+    background-color: #111827 !important;
+    color: #00FFAA !important;
+}
+
+/* Table body */
+tbody tr td {
+    background-color: #0F172A !important;
+    color: #E5E7EB !important;
+}
+
+/* Remove white borders */
+table {
+    border-color: #1F2937 !important;
+}
 
 /* Background utama */
 .stApp {
@@ -562,3 +600,4 @@ with col2:
                     mime="text/csv",
                     use_container_width=True
                 )
+
