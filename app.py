@@ -387,6 +387,25 @@ def send_whatsapp_message(message):
     return response.status_code, response.text
 
 # =========================
+# CSV SETUP
+# =========================
+CSV_FILE = "metar_history.csv"
+
+if not os.path.exists(CSV_FILE):
+    df_history = pd.DataFrame(columns=["station","time","metar"])
+    df_history.to_csv(CSV_FILE, index=False)
+else:
+    df_history = pd.read_csv(CSV_FILE)
+    status, result = upload_to_github(CSV_FILE)
+
+    if status in [200, 201]:
+        st.success("CSV berhasil diupdate ke GitHub!")
+    else:
+        st.error(f"Gagal update GitHub: {result}")
+
+
+
+# =========================
 # GET DATA
 # =========================
 metar_data = get_metar(station_code)
@@ -668,22 +687,6 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
         )
 
 
-# =========================
-# CSV SETUP
-# =========================
-CSV_FILE = "metar_history.csv"
-
-if not os.path.exists(CSV_FILE):
-    df_history = pd.DataFrame(columns=["station","time","metar"])
-    df_history.to_csv(CSV_FILE, index=False)
-else:
-    df_history = pd.read_csv(CSV_FILE)
-    status, result = upload_to_github(CSV_FILE)
-
-    if status in [200, 201]:
-        st.success("CSV berhasil diupdate ke GitHub!")
-    else:
-        st.error(f"Gagal update GitHub: {result}")
 
 
 
