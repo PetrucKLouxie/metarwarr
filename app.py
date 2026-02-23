@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 import os
 import re
+import streamlit.components.v1 as components
 from datetime import datetime, timezone
 from streamlit_autorefresh import st_autorefresh
 
@@ -292,13 +293,13 @@ TREND   : {trend_text}
     st.markdown("---")
     st.subheader("🧾 Format QAM (Siap Copy)")
     st.text_area("QAM Output", qam_report, height=300)
-
-    st.download_button(
-        label="⬇ Download QAM TXT",
-        data=qam_report,
-        file_name=f"QAM_{latest['station']}.txt",
-        mime="text/plain"
-    )
+    if st.button("📋 Copy QAM Text"):
+    components.html(f"""
+        <script>
+        navigator.clipboard.writeText(`{qam_report}`);
+        </script>
+    """)
+    st.toast("Copied to clipboard!")
 
     # =========================
     # METRICS
@@ -334,5 +335,6 @@ if os.path.exists(CSV_FILE):
             file_name="metar_history.csv",
             mime="text/csv"
         )
+
 
 
