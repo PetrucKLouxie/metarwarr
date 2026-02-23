@@ -22,10 +22,8 @@ Aviation Weather Intelligence Dashboard
 
 st.markdown("""
 <style>
-st.markdown("""
-<style>
 
-/* Expander background */
+/* Expander */
 [data-testid="stExpander"] {
     background-color: #0F172A !important;
     border: 1px solid #1F2937 !important;
@@ -38,7 +36,7 @@ st.markdown("""
     color: #00FFAA !important;
 }
 
-/* Dataframe container */
+/* Dataframe */
 [data-testid="stDataFrame"] {
     background-color: #0F172A !important;
     color: white !important;
@@ -56,10 +54,12 @@ tbody tr td {
     color: #E5E7EB !important;
 }
 
-/* Remove white borders */
 table {
     border-color: #1F2937 !important;
 }
+
+</style>
+""", unsafe_allow_html=True)
 
 /* Background utama */
 .stApp {
@@ -600,4 +600,5 @@ with col2:
                     mime="text/csv",
                     use_container_width=True
                 )
+
 
