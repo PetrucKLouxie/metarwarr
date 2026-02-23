@@ -85,40 +85,103 @@ if metar_data:
 # =========================
 
 def parse_metar(metar):
+
     data = {
+        "station": None,
+        "day": None,
+        "hour": None,
+        "minute": None,
         "wind_dir": None,
-        "wind_speed_kt": None,
-        "visibility_m": None,
-        "temperature_c": None,
-        "dewpoint_c": None,
-        "pressure_hpa": None
+        "wind_speed": None,
+        "visibility": None,
+        "weather": None,
+        "cloud": None,
+        "temperature": None,
+        "dewpoint": None,
+        "pressure": None,
+        "trend": None
     }
 
-    try:
-        # WIND 09005KT
-        wind_match = re.search(r'(\d{3})(\d{2})KT', metar)
-        if wind_match:
-            data["wind_dir"] = int(wind_match.group(1))
-            data["wind_speed_kt"] = int(wind_match.group(2))
+    parts = metar.split()
 
-        # VISIBILITY 8000
-        vis_match = re.search(r'\s(\d{4})\s', metar)
-        if vis_match:
-            data["visibility_m"] = int(vis_match.group(1))
+    for i, part in enumerate(parts):
 
-        # TEMP / DEWPOINT 31/24
-        temp_match = re.search(r'(\d{2})/(\d{2})', metar)
-        if temp_match:
-            data["temperature_c"] = int(temp_match.group(1))
-            data["dewpoint_c"] = int(temp_match.group(2))
+        # Station
+        if len(part) == 4 and part.isalpha():
+            data["station"] = part
 
-        # PRESSURE Q1010
-        press_match = re.search(r'Q(\d{4})', metar)
-        if press_match:
-            data["pressure_hpa"] = int(press_match.group(1))
+        # Date time 231430Z
+        if part.endswith("Z") and len(part) == 7:
+            data["day"] = part[0:2]
+            data["hour"] = part[2:4]
+            data["minute"] = part[4:6]
 
-    except:
-        pass
+        # Wind
+        if "KT" in part:
+            data["wind_dir"] = part[0:3]
+            data["wind_speed"] = part[3:5]
+
+        # Visibility
+        if part.isdigit() and len(part) == 4:
+            data["visibility"] = part
+
+        # Weather (+TSRA, HZ, RA)
+        if part in ["HZ","RA","+RA","-RA","TSRA","+TSRA"]:
+            data["weather"] = part
+
+        # Cloud
+        if part.startswith(("FEW","SCT","BKN","OVC")):
+            data["cloud"] = part
+
+        # Temp / Dew
+        if "/" in part and len(part) == 5:
+            t, d = part.split("/")
+            data["temperature"] = t
+            data["dewpoint"] = d
+
+        # Pressure
+        if part.startswith("Q"):
+            data["pressure"] = part[1:]
+
+def parse_tempo_section(metar):
+
+    tempo_data = {
+        "until": None,
+        "visibility": None,
+        "weather": None
+    }
+
+    if " TEMPO " not in metar:
+        return None
+
+    tempo_part = metar.split(" TEMPO ")[1]
+
+    parts = tempo_part.split()
+
+    for part in parts:
+
+        # TL0830
+        if part.startswith("TL"):
+            tempo_data["until"] = part[2:]
+
+        # visibility
+        if part.isdigit() and len(part) == 4:
+            tempo_data["visibility"] = part
+
+        # weather
+        if part in ["TSRA","+TSRA","RA","+RA","-RA","HZ"]:
+            tempo_data["weather"] = part
+
+    return tempo_data
+        # Trend
+        if part in ["NOSIG"]:
+            data["trend"] = part
+        tempo = parse_tempo_section(raw_metar)
+
+if tempo:
+    trend_text = f"TEMPO UNTIL {tempo['until']} VIS {int(tempo['visibility'])//1000}KM {tempo['weather']}"
+else:
+    trend_text = parsed['trend'] if parsed['trend'] else "NIL"
 
     return data
 
@@ -269,5 +332,6 @@ if os.path.exists(CSV_FILE):
             mime="text/csv"
         )
     st.info(f"🕒 Waktu Simpan: {latest['time']}")
+
 
 
