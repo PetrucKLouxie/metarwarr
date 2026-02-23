@@ -20,6 +20,14 @@ st.markdown("""
 Aviation Weather Intelligence Dashboard
 </p>
 """, unsafe_allow_html=True)
+st.markdown("""
+<h2 style='text-align:center; color:#00FFAA;'>
+📍 JUANDA INTERNATIONAL AIRPORT (WARR)
+</h2>
+<p style='text-align:center; color:#AAAAAA;'>
+Surabaya – Indonesia
+</p>
+""", unsafe_allow_html=True)
 
 st.markdown("""
 <style>
@@ -151,7 +159,7 @@ st_autorefresh(interval=60000, key="refresh")
 # =========================
 # INPUT ICAO
 # =========================
-station_code = st.text_input("Masukkan Kode ICAO", value="WARR")
+station_code = "WARR"
 
 # =========================
 # GET METAR FROM NOAA
@@ -679,6 +687,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
