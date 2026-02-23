@@ -23,40 +23,40 @@ Aviation Weather Intelligence Dashboard
 st.markdown("""
 <style>
 
-    /* Expander */
-    [data-testid="stExpander"] {
-        background-color: #0F172A !important;
-        border: 1px solid #1F2937 !important;
-        border-radius: 15px !important;
-    }
+/* Expander container */
+[data-testid="stExpander"] {
+    background-color: #0F172A !important;
+    border: 1px solid #1F2937 !important;
+    border-radius: 20px !important;
+}
 
-    /* Expander header */
-    [data-testid="stExpander"] > div:first-child {
-        background-color: #111827 !important;
-        color: #00FFAA !important;
-    }
+/* Expander header */
+[data-testid="stExpander"] summary {
+    background-color: #0F172A !important;
+    color: #00FFAA !important;
+    border-radius: 20px !important;
+}
 
-    /* Dataframe */
-    [data-testid="stDataFrame"] {
-        background-color: #0F172A !important;
-        color: white !important;
-    }
+/* Hilangkan strip putih */
+[data-testid="stExpander"] > div:first-child {
+    background-color: transparent !important;
+}
 
-    /* Table header */
-    thead tr th {
-        background-color: #111827 !important;
-        color: #00FFAA !important;
-    }
+/* Table full dark */
+table {
+    background-color: #0F172A !important;
+    color: #E5E7EB !important;
+}
 
-    /* Table body */
-    tbody tr td {
-        background-color: #0F172A !important;
-        color: #E5E7EB !important;
-    }
+thead th {
+    background-color: #111827 !important;
+    color: #00FFAA !important;
+}
 
-    table {
-        border-color: #1F2937 !important;
-    }
+tbody td {
+    background-color: #0F172A !important;
+    color: #E5E7EB !important;
+}
 
     /* Background utama */
     .stApp {
@@ -603,6 +603,7 @@ with col2:
                     mime="text/csv",
                     use_container_width=True
                 )
+
 
 
 
