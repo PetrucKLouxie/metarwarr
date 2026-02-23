@@ -3,6 +3,7 @@ import requests
 import pandas as pd
 import os
 import re
+import base64
 import streamlit.components.v1 as components
 from datetime import datetime, timezone
 from streamlit_autorefresh import st_autorefresh
@@ -176,6 +177,48 @@ def get_rounded_utc_time():
     minute = 30 if now.minute >= 30 else 0
     rounded = now.replace(minute=minute, second=0, microsecond=0)
     return rounded.strftime("%Y-%m-%d %H:%M UTC")
+# =========================
+# Upload File
+# =========================
+
+def upload_to_github(file_path):
+
+    token = st.secrets["GITHUB_TOKEN"]
+    repo = st.secrets["GITHUB_REPO"]
+    github_path = st.secrets["GITHUB_FILE_PATH"]
+
+    with open(file_path, "rb") as f:
+        content = f.read()
+
+    encoded_content = base64.b64encode(content).decode()
+
+    url = f"https://api.github.com/repos/{repo}/contents/{github_path}"
+
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github+json"
+    }
+
+    # cek apakah file sudah ada
+    response = requests.get(url, headers=headers)
+
+    if response.status_code == 200:
+        sha = response.json()["sha"]
+    else:
+        sha = None
+
+    data = {
+        "message": "Update METAR history CSV",
+        "content": encoded_content,
+        "branch": "main"
+    }
+
+    if sha:
+        data["sha"] = sha
+
+    r = requests.put(url, headers=headers, json=data)
+
+    return r.status_code, r.text
 
 # =========================
 # PARSE TEMPO
@@ -349,6 +392,12 @@ if not os.path.exists(CSV_FILE):
     df_history.to_csv(CSV_FILE, index=False)
 else:
     df_history = pd.read_csv(CSV_FILE)
+    status, result = upload_to_github(CSV_FILE)
+
+    if status in [200, 201]:
+        st.success("CSV berhasil diupdate ke GitHub!")
+    else:
+        st.error(f"Gagal update GitHub: {result}")
 
 # =========================
 # GET DATA
@@ -630,6 +679,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
