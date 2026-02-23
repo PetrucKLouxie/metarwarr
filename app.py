@@ -554,13 +554,33 @@ line-height:1.6;
 col1, col2, col3 = st.columns([2,3,2])
 
 with col2:
-    if st.button("📋 Copy QAM", key="copy_qam_btn"):
-        components.html(f"""
-        <script>
-        navigator.clipboard.writeText(`{clean_qam}`);
-        </script>
-        """)
-        st.success("QAM berhasil dicopy!")
+    copy_html = f"""
+<div style="text-align:center; margin-top:20px;">
+    <button onclick="copyText()" 
+        style="
+        background: linear-gradient(90deg,#00FFAA,#00CC88);
+        color: black;
+        border: none;
+        padding: 12px 25px;
+        border-radius: 12px;
+        font-weight: bold;
+        cursor: pointer;
+        ">
+        📋 Copy QAM
+    </button>
+</div>
+
+<script>
+function copyText() {{
+    const text = `{qam_report}`;
+    navigator.clipboard.writeText(text).then(function() {{
+        alert("QAM berhasil dicopy!");
+    }});
+}}
+</script>
+"""
+
+components.html(copy_html, height=100)
     # =========================
     # 4️⃣ GENERATIVE TEXT
     # =========================
@@ -604,6 +624,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
