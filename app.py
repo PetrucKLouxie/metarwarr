@@ -294,12 +294,13 @@ TREND   : {trend_text}
     st.subheader("🧾 Format QAM (Siap Copy)")
     st.text_area("QAM Output", qam_report, height=300)
     if st.button("📋 Copy QAM Text"):
-    components.html(f"""
+        copy_script = f"""
         <script>
         navigator.clipboard.writeText(`{qam_report}`);
         </script>
-    """)
-    st.toast("Copied to clipboard!")
+        """
+        st.components.v1.html(copy_script)
+        st.success("QAM berhasil dicopy ke clipboard!")
 
     # =========================
     # METRICS
@@ -335,6 +336,7 @@ if os.path.exists(CSV_FILE):
             file_name="metar_history.csv",
             mime="text/csv"
         )
+
 
 
 
