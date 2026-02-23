@@ -579,12 +579,18 @@ with col2:
 
     with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
         st.markdown("### 📊 Latest 20 Records")
-        st.dataframe(
-            df_history.tail(20),
-            use_container_width=True,
-            height=300
-        )
         st.caption(f"Total records stored: {len(df_history)}")
+        styled_df = df_history.tail(20).style \
+            .set_table_styles([
+                {"selector": "thead th", "props": [("background-color", "#111827"),
+                        ("color", "#00FFAA"),
+                        ("border", "1px solid #1F2937")]},
+                {"selector": "tbody td", "props": [("background-color", "#0F172A"),
+                        ("color", "#E5E7EB"),
+                        ("border", "1px solid #1F2937")]}
+            ])
+
+        st.table(styled_df)
         st.markdown("<br>", unsafe_allow_html=True)
         col1, col2, col3 = st.columns([2,3,2])
 
@@ -597,6 +603,7 @@ with col2:
                     mime="text/csv",
                     use_container_width=True
                 )
+
 
 
 
