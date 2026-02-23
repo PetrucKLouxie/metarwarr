@@ -18,9 +18,9 @@ st.markdown("""
 </h1>
 """, unsafe_allow_html=True)
 st.markdown("""
-<h2 style='text-align:center; color:#00FFAA;'>
+<h3 style='text-align:center; color:#00FFAA;'>
 📍 JUANDA INTERNATIONAL AIRPORT (WARR)
-</h2>
+</h3>
 <p style='text-align:center; color:#AAAAAA;'>
 Surabaya – Indonesia
 </p>
@@ -684,6 +684,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
