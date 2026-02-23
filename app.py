@@ -304,65 +304,14 @@ if len(df_history) > 0:
     tempo = parse_tempo_section(latest["metar"])
     narrative = generate_metar_narrative(parsed, tempo)
 
+    # =========================
+    # 1️⃣ RAW METAR
+    # =========================
     st.subheader(f"📡 METAR Terbaru - {latest['station']}")
     st.code(latest["metar"])
 
     # =========================
-    # FORMAT QAM
-    # =========================
-    date_str = f"{parsed['day']}/{datetime.utcnow().strftime('%m/%Y')}" if parsed['day'] else "-"
-    time_str = f"{parsed['hour']}.{parsed['minute']}" if parsed['hour'] else "-"
-
-    wind = f"{parsed['wind_dir']}°/{parsed['wind_speed_kt']} KT" if parsed['wind_dir'] else "NIL"
-    vis = f"{int(parsed['visibility_m']/1000)} KM" if parsed['visibility_m'] else "NIL"
-
-    cloud = "-"
-    if parsed["cloud"]:
-        amount = parsed["cloud"][:3]
-        height = int(parsed["cloud"][3:6]) * 100
-        cloud = f"{amount} {height}FT"
-
-    trend_text = parsed["trend"] if parsed["trend"] else "NIL"
-    if tempo:
-        trend_text = f"TEMPO TL{tempo['until']} {tempo['visibility']} {tempo['weather']}"
-
-    qam_report = f"""MET REPORT (QAM)
-BANDARA JUANDA {latest['station']}
-DATE : {date_str}
-TIME : {time_str} UTC
-========================
-WIND    : {wind}
-VIS     : {vis}
-WEATHER : {parsed['weather'] if parsed['weather'] else 'NIL'}
-CLOUD   : {cloud}
-TT/TD   : {parsed['temperature_c']}/{parsed['dewpoint_c']}
-QNH     : {parsed['pressure_hpa']} MB
-QFE     : {parsed['pressure_hpa']} MB
-REMARKS : NIL
-TREND   : {trend_text}
-"""
-
-    st.markdown("---")
-    st.subheader("🧾 Format QAM (Siap Copy)")
-    st.text_area("QAM Output", qam_report, height=300)
-
-    if st.button("📋 Copy QAM Text"):
-        components.html(f"""
-        <script>
-        navigator.clipboard.writeText(`{qam_report}`);
-        </script>
-        """)
-        st.success("QAM berhasil dicopy!")
-
-    # =========================
-    # INTERPRETASI
-    # =========================
-    st.markdown("---")
-    st.subheader("🧠 Interpretasi METAR")
-    st.write(narrative)
-
-    # =========================
-    # METRIC VISUAL
+    # 2️⃣ VISUALISASI METRIC
     # =========================
     st.markdown("### 📊 Detail Cuaca")
 
@@ -381,8 +330,74 @@ TREND   : {trend_text}
         st.metric("📊 Pressure (hPa)", parsed["pressure_hpa"])
 
     # =========================
-    # HISTORY
+    # 3️⃣ FORMAT QAM
+    # =========================
+    date_str = f"{parsed['day']}/{datetime.utcnow().strftime('%m/%Y')}" if parsed['day'] else "-"
+    time_str = f"{parsed['hour']}.{parsed['minute']}" if parsed['hour'] else "-"
+
+    wind = f"{parsed['wind_dir']}°/{parsed['wind_speed_kt']} KT" if parsed['wind_dir'] else "NIL"
+    vis = f"{int(parsed['visibility_m']/1000)} KM" if parsed['visibility_m'] else "NIL"
+
+    cloud = "-"
+    if parsed["cloud"]:
+        amount = parsed["cloud"][:3]
+        height = int(parsed["cloud"][3:6]) * 100
+        cloud = f"{amount} {height}FT"
+
+    trend_text = parsed["trend"] if parsed["trend"] else "NIL"
+    if tempo:
+        trend_text = f"TEMPO TL{tempo['until']} {tempo['visibility']} {tempo['weather']}"
+
+    qam_report = f"""MET REPORT (QAM)
+BANDARA {latest['station']}
+DATE : {date_str}
+TIME : {time_str} UTC
+========================
+WIND    : {wind}
+VIS     : {vis}
+WEATHER : {parsed['weather'] if parsed['weather'] else 'NIL'}
+CLOUD   : {cloud}
+TT/TD   : {parsed['temperature_c']}/{parsed['dewpoint_c']}
+QNH     : {parsed['pressure_hpa']} MB
+QFE     : {parsed['pressure_hpa']} MB
+REMARKS : NIL
+TREND   : {trend_text}
+"""
+
+    st.markdown("---")
+    st.subheader("🧾 Format QAM")
+    st.text_area("QAM Output", qam_report, height=300)
+
+    if st.button("📋 Copy QAM Text"):
+        components.html(f"""
+        <script>
+        navigator.clipboard.writeText(`{qam_report}`);
+        </script>
+        """)
+        st.success("QAM berhasil dicopy!")
+
+    # =========================
+    # 4️⃣ GENERATIVE TEXT
+    # =========================
+    st.markdown("---")
+    st.subheader("🧠 Interpretasi METAR (Generative Text)")
+    st.write(narrative)
+
+    # =========================
+    # 5️⃣ HISTORI DATA
     # =========================
     st.markdown("---")
     st.subheader("📜 Histori METAR")
     st.dataframe(df_history.tail(20), use_container_width=True)
+
+    # =========================
+    # 6️⃣ DOWNLOAD CSV
+    # =========================
+    if os.path.exists(CSV_FILE):
+        with open(CSV_FILE, "rb") as file:
+            st.download_button(
+                label="⬇ Download CSV",
+                data=file,
+                file_name="metar_history.csv",
+                mime="text/csv"
+            )
