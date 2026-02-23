@@ -402,9 +402,6 @@ else:
         st.success("CSV berhasil diupdate ke GitHub!")
     else:
         st.error(f"Gagal update GitHub: {result}")
-
-
-
 # =========================
 # GET DATA
 # =========================
@@ -685,6 +682,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
