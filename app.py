@@ -219,6 +219,27 @@ else:
     df_history = pd.read_csv(CSV_FILE)
 
 # =========================
+# NOTIF WA
+# =========================
+
+def send_whatsapp_message(message):
+
+    url = "https://api.fonnte.com/send"
+
+    headers = {
+        "Authorization": st.secrets["FONNTE_TOKEN"]
+    }
+
+    data = {
+        "target": "6282126910641",  # nomor tujuan
+        "message": message
+    }
+
+    response = requests.post(url, headers=headers, data=data)
+
+    return response.status_code
+
+# =========================
 # GET DATA
 # =========================
 metar_data = get_metar(station_code)
@@ -235,6 +256,9 @@ if metar_data:
         df_history.to_csv(CSV_FILE, index=False)
 
         st.success("Data baru ditambahkan ke histori")
+        status = send_whatsapp_message(full_message)
+        if status == 200:
+            st.success("Notifikasi WA terkirim!")
 
 # =========================
 # DISPLAY LATEST
@@ -336,8 +360,4 @@ if os.path.exists(CSV_FILE):
             file_name="metar_history.csv",
             mime="text/csv"
         )
-
-
-
-
 
