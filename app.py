@@ -416,10 +416,10 @@ TREND   : {trend_text}
         st.success("Data baru ditambahkan ke histori")
 
         # SEND WA
-        status, result = send_whatsapp_message(full_message)
+        status = send_whatsapp_message(full_message)
+            if status == 200:
+                st.success("Notifikasi WA terkirim!")
 
-        st.write("Status:", status)
-        st.write("Response:", result)
 # =========================
 # DISPLAY LATEST
 # =========================
@@ -624,6 +624,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
