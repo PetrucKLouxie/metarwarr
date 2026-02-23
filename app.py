@@ -548,19 +548,20 @@ with col2:
 # DOWNLOAD CSV PREMIUM
 # =========================
 
-st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
 
-col1, col2, col3 = st.columns([2,3,2])
+        col1, col2, col3 = st.columns([2,3,2])
 
-with col2:
-    with open(CSV_FILE, "rb") as file:
-        st.download_button(
-            label="⬇ Download METAR History (CSV)",
-            data=file,
-            file_name="metar_history.csv",
-            mime="text/csv",
-            use_container_width=True
-        )
+        with col2:
+            with open(CSV_FILE, "rb") as file:
+                st.download_button(
+                    label="⬇ Download METAR History (CSV)",
+                    data=file,
+                    file_name="metar_history.csv",
+                    mime="text/csv",
+                    use_container_width=True
+            )
+
 
 
 
