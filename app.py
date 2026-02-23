@@ -11,7 +11,50 @@ from streamlit_autorefresh import st_autorefresh
 # CONFIG PAGE
 # =========================
 st.set_page_config(page_title="METAR Realtime Global", layout="wide")
-st.title("🌍 METAR Real-Time Dashboard")
+st.markdown("""
+<h1 style='text-align: center; color: #00FFAA;'>
+🛫 METAR REAL-TIME MONITORING SYSTEM
+</h1>
+<p style='text-align: center; color: #AAAAAA;'>
+Aviation Weather Intelligence Dashboard
+</p>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+
+.main {
+    background-color: #0E1117;
+}
+
+h1, h2, h3 {
+    color: #FFFFFF;
+}
+
+.stMetric {
+    background-color: #1E222A;
+    padding: 15px;
+    border-radius: 10px;
+}
+
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+div[data-testid="stCodeBlock"] {
+    background-color: #111827;
+    border-radius: 10px;
+}
+
+textarea {
+    background-color: #111827 !important;
+    color: #00FFAA !important;
+    font-family: monospace;
+}
+
+</style>
+""", unsafe_allow_html=True)
 
 # =========================
 # AUTO REFRESH 1 MENIT
@@ -309,6 +352,12 @@ if len(df_history) > 0:
     # =========================
     st.subheader(f"📡 METAR Terbaru - {latest['station']}")
     st.code(latest["metar"])
+    st.markdown(
+        "<div style='padding:10px; background-color:#1E222A; border-radius:8px;'>"
+        "<b>Status:</b> 🟢 Operational"
+        "</div>",
+        unsafe_allow_html=True
+    )
 
     # =========================
     # 2️⃣ VISUALISASI METRIC
@@ -364,7 +413,7 @@ REMARKS : NIL
 TREND   : {trend_text}
 """
 
-    st.markdown("---")
+    st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
     st.subheader("🧾 Format QAM")
     st.text_area("QAM Output", qam_report, height=300)
 
@@ -379,15 +428,15 @@ TREND   : {trend_text}
     # =========================
     # 4️⃣ GENERATIVE TEXT
     # =========================
-    st.markdown("---")
+    st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
     st.subheader("🧠 Interpretasi METAR (Generative Text)")
     st.write(narrative)
 
     # =========================
     # 5️⃣ HISTORI DATA
     # =========================
-    st.markdown("---")
-    st.subheader("📜 Histori METAR")
+    st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
+    with st.expander("📜 Lihat Histori METAR"):
     st.dataframe(df_history.tail(20), use_container_width=True)
 
     # =========================
@@ -401,3 +450,4 @@ TREND   : {trend_text}
                 file_name="metar_history.csv",
                 mime="text/csv"
             )
+
