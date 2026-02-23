@@ -457,7 +457,7 @@ if len(df_history) > 0:
         trend_text = f"TEMPO TL{tempo['until']} {tempo['visibility']} {tempo['weather']}"
 
     qam_report = f"""MET REPORT (QAM)
-BANDARA {latest['station']}
+BANDARA JUANDA{latest['station']}
 DATE : {date_str}
 TIME : {time_str} UTC
 ========================
@@ -473,17 +473,43 @@ TREND   : {trend_text}
 """
 
     st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
-    st.subheader("🧾 Format QAM")
-    st.text_area("QAM Output", qam_report, height=300)
+# =========================
+# FORMAT QAM CENTERED CARD
+# =========================
 
-    if st.button("📋 Copy QAM", use_container_width=True):
-        components.html(f"""
-        <script>
-        navigator.clipboard.writeText(`{qam_report}`);
-        </script>
-        """)
-        st.success("QAM berhasil dicopy!")
+    st.markdown("<hr style='border:1px solid #1F2937;'>", unsafe_allow_html=True)
 
+    st.markdown("<h3 style='text-align:center;'>🧾 Format QAM</h3>", unsafe_allow_html=True)
+
+    st.markdown(f"""
+    <div style="
+    max-width:800px;
+    margin:auto;
+    background:linear-gradient(135deg,#111827,#0F172A);
+    padding:30px;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+    border:1px solid #1F2937;
+    font-family:monospace;
+    color:#00FFAA;
+    white-space:pre-wrap;
+    ">
+    {qam_report}
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    col_left, col_mid, col_right = st.columns([1,2,1])
+
+    with col_mid:
+        if st.button("📋 Copy QAM", key="copy_qam"):
+            components.html(f"""
+            <script>
+            navigator.clipboard.writeText(`{qam_report}`);
+            </script>
+            """)
+            st.success("QAM berhasil dicopy!")
     # =========================
     # 4️⃣ GENERATIVE TEXT
     # =========================
@@ -509,6 +535,7 @@ TREND   : {trend_text}
                 file_name="metar_history.csv",
                 mime="text/csv"
             )
+
 
 
 
