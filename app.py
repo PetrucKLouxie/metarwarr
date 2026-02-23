@@ -23,96 +23,93 @@ Aviation Weather Intelligence Dashboard
 st.markdown("""
 <style>
 
-/* Expander */
-[data-testid="stExpander"] {
-    background-color: #0F172A !important;
-    border: 1px solid #1F2937 !important;
-    border-radius: 15px !important;
-}
+    /* Expander */
+    [data-testid="stExpander"] {
+        background-color: #0F172A !important;
+        border: 1px solid #1F2937 !important;
+        border-radius: 15px !important;
+    }
 
-/* Expander header */
-[data-testid="stExpander"] > div:first-child {
-    background-color: #111827 !important;
-    color: #00FFAA !important;
-}
+    /* Expander header */
+    [data-testid="stExpander"] > div:first-child {
+        background-color: #111827 !important;
+        color: #00FFAA !important;
+    }
 
-/* Dataframe */
-[data-testid="stDataFrame"] {
-    background-color: #0F172A !important;
-    color: white !important;
-}
+    /* Dataframe */
+    [data-testid="stDataFrame"] {
+        background-color: #0F172A !important;
+        color: white !important;
+    }
 
-/* Table header */
-thead tr th {
-    background-color: #111827 !important;
-    color: #00FFAA !important;
-}
+    /* Table header */
+    thead tr th {
+        background-color: #111827 !important;
+        color: #00FFAA !important;
+    }
 
-/* Table body */
-tbody tr td {
-    background-color: #0F172A !important;
-    color: #E5E7EB !important;
-}
+    /* Table body */
+    tbody tr td {
+        background-color: #0F172A !important;
+        color: #E5E7EB !important;
+    }
 
-table {
-    border-color: #1F2937 !important;
-}
+    table {
+        border-color: #1F2937 !important;
+    }
 
-</style>
-""", unsafe_allow_html=True)
+    /* Background utama */
+    .stApp {
+        background-color: #0E1117;
+    }
 
-/* Background utama */
-.stApp {
-    background-color: #0E1117;
-}
+    /* Container */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
 
-/* Container */
-.block-container {
-    padding-top: 2rem;
-    padding-bottom: 2rem;
-}
+    /* Header & Text */
+    h1, h2, h3, h4 {
+        color: #00FFAA;
+    }
 
-/* Header & Text */
-h1, h2, h3, h4 {
-    color: #00FFAA;
-}
+    p, label, div {
+        color: #E5E7EB;
+    }
 
-p, label, div {
-    color: #E5E7EB;
-}
+    /* Code block */
+    div[data-testid="stCodeBlock"] {
+        background-color: #111827;
+        border-radius: 10px;
+    }
 
-/* Code block */
-div[data-testid="stCodeBlock"] {
-    background-color: #111827;
-    border-radius: 10px;
-}
+    /* Metric cards */
+    [data-testid="stMetric"] {
+        background: linear-gradient(135deg, #1F2937, #111827);
+        padding: 20px;
+        border-radius: 12px;
+    }
 
-/* Metric cards */
-[data-testid="stMetric"] {
-    background: linear-gradient(135deg, #1F2937, #111827);
-    padding: 20px;
-    border-radius: 12px;
-}
+    /* Text area */
+    textarea {
+        background-color: #111827 !important;
+        color: #00FFAA !important;
+        font-family: monospace;
+    }
 
-/* Text area */
-textarea {
-    background-color: #111827 !important;
-    color: #00FFAA !important;
-    font-family: monospace;
-}
+    /* Input box */
+    input {
+        background-color: #1F2937 !important;
+        color: white !important;
+    }
 
-/* Input box */
-input {
-    background-color: #1F2937 !important;
-    color: white !important;
-}
-
-/* Status bar */
-.status-box {
-    background: linear-gradient(90deg, #065F46, #064E3B);
-    padding: 10px;
-    border-radius: 8px;
-    font-weight: bold;
+    /* Status bar */
+    .status-box {
+        background: linear-gradient(90deg, #065F46, #064E3B);
+        padding: 10px;
+        border-radius: 8px;
+        font-weight: bold;
 }
 [data-testid="stMetric"] {
     background: linear-gradient(135deg, #1E293B, #0F172A);
@@ -120,28 +117,28 @@ input {
     padding: 20px;
     border-radius: 15px;
     transition: 0.3s;
-}
+    }
 
-[data-testid="stMetric"]:hover {
-    transform: scale(1.02);
-}
-div.stButton > button {
-    background: linear-gradient(90deg,#00FFAA,#00CC88);
-    color: black;
-    border-radius: 12px;
-    font-weight: bold;
-}
-div.stDownloadButton > button {
-    background: linear-gradient(90deg,#00FFAA,#00CC88);
-    color: black;
-    font-weight: bold;
-    border-radius: 15px;
-    padding: 12px;
-}
+    [data-testid="stMetric"]:hover {
+        transform: scale(1.02);
+    }
+    div.stButton > button {
+        background: linear-gradient(90deg,#00FFAA,#00CC88);
+        color: black;
+        border-radius: 12px;
+        font-weight: bold;
+    }
+    div.stDownloadButton > button {
+        background: linear-gradient(90deg,#00FFAA,#00CC88);
+        color: black;
+        font-weight: bold;
+        border-radius: 15px;
+        padding: 12px;
+    }
 
-div.stDownloadButton > button:hover {
-    background: linear-gradient(90deg,#00CC88,#00FFAA);
-}
+    div.stDownloadButton > button:hover {
+        background: linear-gradient(90deg,#00CC88,#00FFAA);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -600,5 +597,6 @@ with col2:
                     mime="text/csv",
                     use_container_width=True
                 )
+
 
 
