@@ -93,7 +93,17 @@ div.stButton > button {
     border-radius: 12px;
     font-weight: bold;
 }
+div.stDownloadButton > button {
+    background: linear-gradient(90deg,#00FFAA,#00CC88);
+    color: black;
+    font-weight: bold;
+    border-radius: 15px;
+    padding: 12px;
+}
 
+div.stDownloadButton > button:hover {
+    background: linear-gradient(90deg,#00CC88,#00FFAA);
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -534,14 +544,23 @@ with col2:
     # 6️⃣ DOWNLOAD CSV
     # =========================
     if os.path.exists(CSV_FILE):
-        with open(CSV_FILE, "rb") as file:
-            st.download_button(
-                label="⬇ Download CSV",
-                data=file,
-                file_name="metar_history.csv",
-                mime="text/csv"
-            )
+# =========================
+# DOWNLOAD CSV PREMIUM
+# =========================
 
+st.markdown("<br>", unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns([2,3,2])
+
+with col2:
+    with open(CSV_FILE, "rb") as file:
+        st.download_button(
+            label="⬇ Download METAR History (CSV)",
+            data=file,
+            file_name="metar_history.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
 
 
 
