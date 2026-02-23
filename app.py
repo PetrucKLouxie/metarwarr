@@ -571,38 +571,40 @@ with col2:
     # =========================
     # 5️⃣ HISTORI DATA
     # =========================
-# =========================
-# HISTORY SECTION CLEAN
-# =========================
 
-    st.markdown("<hr style='border:1px solid #1F2937;'>", unsafe_allow_html=True)
+st.markdown("<hr style='border:1px solid #1F2937;'>", unsafe_allow_html=True)
 
-    with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
-        st.markdown("### 📊 Latest 20 Records")
-        st.caption(f"Total records stored: {len(df_history)}")
-        styled_df = df_history.tail(20).style \
-            .set_table_styles([
-                {"selector": "thead th", "props": [("background-color", "#111827"),
-                        ("color", "#00FFAA"),
-                        ("border", "1px solid #1F2937")]},
-                {"selector": "tbody td", "props": [("background-color", "#0F172A"),
-                        ("color", "#E5E7EB"),
-                        ("border", "1px solid #1F2937")]}
-            ])
+with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
 
-        st.table(styled_df)
-        st.markdown("<br>", unsafe_allow_html=True)
-        col1, col2, col3 = st.columns([2,3,2])
+    st.markdown("### 📊 Latest 20 Records")
+    st.caption(f"Total records stored: {len(df_history)}")
 
-        with col2:
-            with open(CSV_FILE, "rb") as file:
-                st.download_button(
-                    label="⬇ Download METAR History (CSV)",
-                    data=file,
-                    file_name="metar_history.csv",
-                    mime="text/csv",
-                    use_container_width=True
-                )
+    styled_df = df_history.tail(20).style.set_table_styles([
+        {"selector": "thead th", "props": [
+            ("background-color", "#111827"),
+            ("color", "#00FFAA"),
+            ("border", "1px solid #1F2937")
+        ]},
+        {"selector": "tbody td", "props": [
+            ("background-color", "#0F172A"),
+            ("color", "#E5E7EB"),
+            ("border", "1px solid #1F2937")
+        ]}
+    ])
+
+    st.table(styled_df)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    with open(CSV_FILE, "rb") as file:
+        st.download_button(
+            label="⬇ Download METAR History (CSV)",
+            data=file,
+            file_name="metar_history.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
+
 
 
 
