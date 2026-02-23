@@ -13,7 +13,7 @@ st.title("🌍 METAR Real-Time Dashboard")
 # =========================
 # AUTO REFRESH 10 MENIT
 # =========================
-st_autorefresh(interval=600000, key="refresh")
+st_autorefresh(interval=60000, key="refresh")
 
 # =========================
 # INPUT ICAO
@@ -336,6 +336,7 @@ if os.path.exists(CSV_FILE):
             file_name="metar_history.csv",
             mime="text/csv"
         )
+
 
 
 
