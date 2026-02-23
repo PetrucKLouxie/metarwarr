@@ -536,20 +536,21 @@ with col2:
     # =========================
     # 5️⃣ HISTORI DATA
     # =========================
-    st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
+# =========================
+# HISTORY SECTION CLEAN
+# =========================
+
+    st.markdown("<hr style='border:1px solid #1F2937;'>", unsafe_allow_html=True)
+
     with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
-        st.dataframe(df_history.tail(20), use_container_width=True)
-
-    # =========================
-    # 6️⃣ DOWNLOAD CSV
-    # =========================
-    if os.path.exists(CSV_FILE):
-# =========================
-# DOWNLOAD CSV PREMIUM
-# =========================
-
+        st.markdown("### 📊 Latest 20 Records")
+        st.dataframe(
+            df_history.tail(20),
+            use_container_width=True,
+            height=300
+        )
+        st.caption(f"Total records stored: {len(df_history)}")
         st.markdown("<br>", unsafe_allow_html=True)
-
         col1, col2, col3 = st.columns([2,3,2])
 
         with col2:
@@ -560,10 +561,4 @@ with col2:
                     file_name="metar_history.csv",
                     mime="text/csv",
                     use_container_width=True
-            )
-
-
-
-
-
-
+                )
