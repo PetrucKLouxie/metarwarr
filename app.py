@@ -76,6 +76,17 @@ input {
     border-radius: 8px;
     font-weight: bold;
 }
+[data-testid="stMetric"] {
+    background: linear-gradient(135deg, #1E293B, #0F172A);
+    border: 1px solid #1F2937;
+    padding: 20px;
+    border-radius: 15px;
+    transition: 0.3s;
+}
+
+[data-testid="stMetric"]:hover {
+    transform: scale(1.02);
+}
 
 </style>
 """, unsafe_allow_html=True)
@@ -375,11 +386,37 @@ if len(df_history) > 0:
     # 1️⃣ RAW METAR
     # =========================
     st.subheader(f"📡 METAR Terbaru - {latest['station']}")
-    st.code(latest["metar"])
-    st.markdown(
-        "<div class='status-box'>🟢 Status: Operational</div>",
-        unsafe_allow_html=True
-    )
+    st.markdown(f"""
+    <div style="
+    background: #111827;
+    padding:15px;
+    border-radius:10px;
+    font-family: monospace;
+    color:#00FFAA;
+    border:1px solid #1F2937;
+    ">
+    {latest["metar"]}
+    </div>
+    """, unsafe_allow_html=True)
+    status_color = "#16A34A"  # hijau default
+
+    if parsed["weather"] in ["TSRA","+TSRA"]:
+        status_color = "#DC2626"
+    elif parsed["visibility_m"] and parsed["visibility_m"] < 5000:
+        status_color = "#F59E0B"
+
+    st.markdown(f"""
+    <div style="
+    background:{status_color};
+    padding:8px 15px;
+    border-radius:8px;
+    color:white;
+    font-weight:600;
+    display:inline-block;
+    ">
+    ● STATUS: OPERATIONAL
+    </div>
+    """, unsafe_allow_html=True)
 
     # =========================
     # 2️⃣ VISUALISASI METRIC
@@ -439,7 +476,7 @@ TREND   : {trend_text}
     st.subheader("🧾 Format QAM")
     st.text_area("QAM Output", qam_report, height=300)
 
-    if st.button("📋 Copy QAM Text"):
+    if st.button("📋 Copy QAM", use_container_width=True):
         components.html(f"""
         <script>
         navigator.clipboard.writeText(`{qam_report}`);
@@ -458,7 +495,7 @@ TREND   : {trend_text}
     # 5️⃣ HISTORI DATA
     # =========================
     st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
-    with st.expander("📜 Lihat Histori METAR"):
+    with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
         st.dataframe(df_history.tail(20), use_container_width=True)
 
     # =========================
@@ -472,6 +509,7 @@ TREND   : {trend_text}
                 file_name="metar_history.csv",
                 mime="text/csv"
             )
+
 
 
 
