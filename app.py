@@ -437,7 +437,7 @@ TREND   : {trend_text}
     # =========================
     st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
     with st.expander("📜 Lihat Histori METAR"):
-    st.dataframe(df_history.tail(20), use_container_width=True)
+        st.dataframe(df_history.tail(20), use_container_width=True)
 
     # =========================
     # 6️⃣ DOWNLOAD CSV
@@ -450,4 +450,5 @@ TREND   : {trend_text}
                 file_name="metar_history.csv",
                 mime="text/csv"
             )
+
 
