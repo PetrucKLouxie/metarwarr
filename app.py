@@ -397,6 +397,8 @@ if not os.path.exists(CSV_FILE):
 else:
     df_history = pd.read_csv(CSV_FILE)
     status, result = upload_to_github(CSV_FILE)
+    st.write(status)
+    st.write(result)
 
     if status in [200, 201]:
         st.success("CSV berhasil diupdate ke GitHub!")
@@ -682,6 +684,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
