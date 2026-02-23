@@ -423,8 +423,8 @@ TREND   : {trend_text}
         if st.session_state.last_wa_sent is None or \
            (now - st.session_state.last_wa_sent).seconds > 1800:
             status, result = send_whatsapp_message(full_message)
-                if status == 200:
-                    st.success("Notifikasi WA terkirim!")
+            if status == 200:
+                st.success("Notifikasi WA terkirim!")
             st.session_state.last_wa_sent = now
 # =========================
 # DISPLAY LATEST
@@ -630,6 +630,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
