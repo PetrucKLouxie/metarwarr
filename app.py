@@ -4,10 +4,8 @@ import pandas as pd
 import os
 import re
 import json
-import base64
 from datetime import datetime
 from streamlit_autorefresh import st_autorefresh
-
 
 st.set_page_config(page_title="METAR Realtime Global", layout="wide")
 
@@ -43,50 +41,6 @@ def get_metar(station_code):
         return None
 
 # =========================
-# CONFIG GITHUB
-# =========================
-GITHUB_TOKEN = st.secrets["GITHUB_TOKEN"]  # untuk deploy
-REPO_NAME = "PetruckLouxie/metarwarr"           # ganti
-BRANCH = "main"
-GITHUB_FILE_PATH = "metar_history.csv"
-
-
-def upload_to_github(file_path):
-
-    with open(file_path, "rb") as f:
-        content = f.read()
-
-    encoded_content = base64.b64encode(content).decode()
-
-    url = f"https://api.github.com/repos/{REPO_NAME}/contents/{GITHUB_FILE_PATH}"
-
-    headers = {
-        "Authorization": f"token {GITHUB_TOKEN}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-
-    # Cek apakah file sudah ada
-    response = requests.get(url, headers=headers)
-
-    if response.status_code == 200:
-        sha = response.json()["sha"]
-    else:
-        sha = None
-
-    payload = {
-        "message": "Auto update METAR history",
-        "content": encoded_content,
-        "branch": BRANCH
-    }
-
-    if sha:
-        payload["sha"] = sha
-
-    r = requests.put(url, headers=headers, json=payload)
-
-    return r.status_code
-
-# =========================
 # FILE CSV
 # =========================
 CSV_FILE = "metar_history.csv"
@@ -115,12 +69,10 @@ if metar_data:
         }
 
         df_history = pd.concat([df_history, pd.DataFrame([new_row])], ignore_index=True)
-        status = upload_to_github(CSV_FILE)
+        df_history.to_csv(CSV_FILE, index=False)
 
-if status in [200, 201]:
-    st.success("✅ Data berhasil dikirim ke GitHub")
-else:
-    st.error("❌ Gagal upload ke GitHub")
+        st.success("Data baru ditambahkan ke CSV")
+
 # =========================
 
 def parse_metar(metar):
@@ -308,5 +260,4 @@ if os.path.exists(CSV_FILE):
             mime="text/csv"
         )
     st.info(f"🕒 Waktu Simpan: {latest['time']}")
-
 
