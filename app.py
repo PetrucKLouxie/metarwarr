@@ -23,34 +23,58 @@ Aviation Weather Intelligence Dashboard
 st.markdown("""
 <style>
 
-.main {
+/* Background utama */
+.stApp {
     background-color: #0E1117;
 }
 
-h1, h2, h3 {
-    color: #FFFFFF;
-}
-
-.stMetric {
-    background-color: #1E222A;
-    padding: 15px;
-    border-radius: 10px;
-}
-
+/* Container */
 .block-container {
     padding-top: 2rem;
     padding-bottom: 2rem;
 }
 
+/* Header & Text */
+h1, h2, h3, h4 {
+    color: #00FFAA;
+}
+
+p, label, div {
+    color: #E5E7EB;
+}
+
+/* Code block */
 div[data-testid="stCodeBlock"] {
     background-color: #111827;
     border-radius: 10px;
 }
 
+/* Metric cards */
+[data-testid="stMetric"] {
+    background: linear-gradient(135deg, #1F2937, #111827);
+    padding: 20px;
+    border-radius: 12px;
+}
+
+/* Text area */
 textarea {
     background-color: #111827 !important;
     color: #00FFAA !important;
     font-family: monospace;
+}
+
+/* Input box */
+input {
+    background-color: #1F2937 !important;
+    color: white !important;
+}
+
+/* Status bar */
+.status-box {
+    background: linear-gradient(90deg, #065F46, #064E3B);
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
 }
 
 </style>
@@ -353,9 +377,7 @@ if len(df_history) > 0:
     st.subheader(f"📡 METAR Terbaru - {latest['station']}")
     st.code(latest["metar"])
     st.markdown(
-        "<div style='padding:10px; background-color:#1E222A; border-radius:8px;'>"
-        "<b>Status:</b> 🟢 Operational"
-        "</div>",
+        "<div class='status-box'>🟢 Status: Operational</div>",
         unsafe_allow_html=True
     )
 
@@ -450,5 +472,6 @@ TREND   : {trend_text}
                 file_name="metar_history.csv",
                 mime="text/csv"
             )
+
 
 
