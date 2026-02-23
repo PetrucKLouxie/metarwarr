@@ -248,9 +248,9 @@ if len(df_history) > 0:
     tempo = parse_tempo_section(latest["metar"])
     narrative = generate_metar_narrative(parsed, tempo)
 
-st.markdown("---")
-st.subheader("🧠 Interpretasi METAR (Narasi Otomatis)")
-st.write(narrative)
+    st.markdown("---")
+    st.subheader("🧠 Interpretasi METAR (Narasi Otomatis)")
+    st.write(narrative)
 
     # =========================
     # FORMAT QAM
@@ -334,4 +334,5 @@ if os.path.exists(CSV_FILE):
             file_name="metar_history.csv",
             mime="text/csv"
         )
+
 
