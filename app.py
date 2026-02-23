@@ -191,9 +191,9 @@ def upload_to_github(file_path):
     github_path = st.secrets["GITHUB_FILE_PATH"]
 
     with open(file_path, "rb") as f:
-        content = f.read()
+        local_content = f.read()
 
-    encoded_content = base64.b64encode(content).decode()
+    encoded_content = base64.b64encode(local_content).decode()
 
     url = f"https://api.github.com/repos/{repo}/contents/{github_path}"
 
@@ -202,10 +202,17 @@ def upload_to_github(file_path):
         "Accept": "application/vnd.github+json"
     }
 
-    # cek apakah file sudah ada
+    # ambil file dari github
     response = requests.get(url, headers=headers)
 
     if response.status_code == 200:
+        github_content = response.json()["content"]
+        github_content = base64.b64decode(github_content)
+
+        # 🔥 cek apakah sama
+        if github_content == local_content:
+            return 999, "No changes detected"
+
         sha = response.json()["sha"]
     else:
         sha = None
@@ -221,8 +228,7 @@ def upload_to_github(file_path):
 
     r = requests.put(url, headers=headers, json=data)
 
-    return r.status_code, r.text
-
+    return r.status_code, r.json()
 # =========================
 # PARSE TEMPO
 # =========================
@@ -397,10 +403,12 @@ if not os.path.exists(CSV_FILE):
 else:
     df_history = pd.read_csv(CSV_FILE)
     status, result = upload_to_github(CSV_FILE)
-    if status in [200, 201]:
+    if status == 999:
+        st.info("Tidak ada perubahan pada CSV.")
+    elif status in [200, 201]:
         st.success("CSV berhasil diupdate ke GitHub!")
     else:
-        st.error(f"Gagal update GitHub: {result}")
+    st.error(result)
 # =========================
 # GET DATA
 # =========================
@@ -681,6 +689,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
