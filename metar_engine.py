@@ -189,9 +189,10 @@ if os.path.exists(CSV_FILE):
 else:
     df = pd.DataFrame(columns=["station","time","metar"])
     
-    
+
 if df.empty or df.iloc[-1]["metar"] != metar_data:
 
+    latest = df_history.iloc[-1]
     parsed = parse_metar(metar_data)
     weather_text = parsed['weather'] if parsed['weather'] else "NIL"
     tempo = parse_tempo_section(latest["metar"])
