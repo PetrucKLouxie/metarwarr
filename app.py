@@ -581,7 +581,7 @@ TREND   : {trend_text}
 {narrative}
 """
 
-       metar_data = get_metar(STATION_CODE)
+metar_data = get_metar(STATION_CODE)
 
 if metar_data:
 
@@ -832,6 +832,7 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
