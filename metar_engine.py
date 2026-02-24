@@ -184,6 +184,13 @@ if not metar_data:
 # =========================
 # LOAD CSV
 # =========================
+CSV_FILE = "metar_history.csv"
+
+if os.path.exists(CSV_FILE):
+    df_history = pd.read_csv(CSV_FILE)
+else:
+    
+    df_history = pd.DataFrame(columns=["station","time","metar"])
 if os.path.exists(CSV_FILE):
     df = pd.read_csv(CSV_FILE)
 else:
