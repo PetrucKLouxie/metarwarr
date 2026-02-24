@@ -568,13 +568,21 @@ TREND   : {trend_text}
             st.session_state.last_wa_sent = None
         now = datetime.utcnow()
 
-        if st.session_state.last_wa_sent is None or \
-           (now - st.session_state.last_wa_sent).seconds > 1800:
-            if st.session_state.logged_in:
-            status, result = send_whatsapp_message(full_message)
-                if status == 200:
-                    st.success("Notifikasi WA terkirim!")
-                st.session_state.last_wa_sent = now
+     if (
+    st.session_state.last_wa_sent is None
+    or (now - st.session_state.last_wa_sent).seconds > 1800
+):
+
+    if st.session_state.logged_in:
+
+        status, result = send_whatsapp_message(full_message)
+
+        if status == 200:
+            st.success("Notifikasi WA terkirim!")
+        else:
+            st.error(f"WA gagal: {result}")
+
+        st.session_state.last_wa_sent = now
 # =========================
 # DISPLAY LATEST
 # =========================
@@ -779,6 +787,7 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
