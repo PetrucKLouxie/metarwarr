@@ -14,6 +14,25 @@ def get_metar(station):
         return r.text.strip().split("\n")[-1]
     return None
 
+def parse_tempo_section(metar):
+    if " TEMPO " not in metar:
+        return None
+
+    tempo_part = metar.split(" TEMPO ")[1]
+    parts = tempo_part.replace("=", "").split()
+
+    tempo_data = {"until": None, "visibility": None, "weather": None}
+
+    for part in parts:
+        if part.startswith("TL"):
+            tempo_data["until"] = part[2:]
+        if part.isdigit() and len(part) == 4:
+            tempo_data["visibility"] = part
+        if part in ["TSRA","+TSRA","RA","+RA","-RA","HZ"]:
+            tempo_data["weather"] = part
+
+    return tempo_data
+
 def parse_metar(metar):
 
     data = {
