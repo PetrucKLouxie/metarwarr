@@ -151,9 +151,9 @@ def generate_metar_narrative(parsed, tempo=None):
             f"Hingga {tempo['until']} UTC diperkirakan visibilitas "
             f"{tempo['visibility']} meter dengan kondisi {tempo['weather']}."
         )
-    elif parsed.get("trend") == "NOSIG":
+    elif parsed["trend"] == "NOSIG":
         text.append("Tidak ada perubahan signifikan dalam waktu dekat.")
-    
+
     return " ".join(text)
     
 metar_data = get_metar(STATION_CODE)
@@ -209,7 +209,7 @@ TT/TD   : {parsed['temperature_c']}/{parsed['dewpoint_c']}
 QNH     : {parsed['pressure_hpa']} MB
 QFE     : {parsed['pressure_hpa']} MB
 REMARKS : NIL
-TREND   : {tempo}
+TREND   : {trend_text}
 """
     full_message = f"""📡 METAR UPDATE
 
