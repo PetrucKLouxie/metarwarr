@@ -17,17 +17,19 @@ def get_metar(station):
 def parse_metar(metar):
 
     data = {
-        "station": None,
-        "day": None,
-        "hour": None,
-        "minute": None,
-        "wind_dir": None,
-        "wind_speed_kt": None,
-        "visibility_m": None,
-        "cloud": None,
-        "temperature_c": None,
-        "dewpoint_c": None,
-        "pressure_hpa": None
+    "station": None,
+    "day": None,
+    "hour": None,
+    "minute": None,
+    "wind_dir": None,
+    "wind_speed_kt": None,
+    "visibility_m": None,
+    "cloud": None,
+    "weather": None,      # TAMBAHKAN
+    "trend": None,        # TAMBAHKAN
+    "temperature_c": None,
+    "dewpoint_c": None,
+    "pressure_hpa": None
     }
 
     parts = metar.replace("=", "").split()
@@ -59,6 +61,13 @@ def parse_metar(metar):
 
         if part.startswith("Q"):
             data["pressure_hpa"] = part[1:]
+        # WEATHER CODE
+        if part in ["RA","-RA","+RA","TSRA","+TSRA","HZ"]:
+            data["weather"] = part
+
+        # TREND
+        if part == "NOSIG":
+            data["trend"] = "NOSIG"
 
     return data
     
@@ -116,12 +125,19 @@ def generate_metar_narrative(parsed, tempo=None):
     if parsed["weather"]:
         desc = weather_map.get(parsed["weather"], parsed["weather"])
         text.append(f"Terdapat fenomena cuaca berupa {desc}.")
-
+    
+    cloud_map = {
+        "FEW": "awan sedikit",
+        "SCT": "awan tersebar",
+        "BKN": "awan banyak",
+        "OVC": "awan menutup langit"
+    }
     if parsed["cloud"]:
         amount = parsed["cloud"][:3]
         height = int(parsed["cloud"][3:6]) * 100
-        text.append(f"Awan {amount} pada ketinggian {height} kaki.")
-
+        desc = cloud_map.get(amount, amount)
+        text.append(f"Terdapat {desc} pada ketinggian {height} kaki.")
+        
     if parsed["temperature_c"] and parsed["dewpoint_c"]:
         text.append(
             f"Suhu {parsed['temperature_c']}°C dengan titik embun {parsed['dewpoint_c']}°C."
@@ -164,8 +180,10 @@ if df.empty or df.iloc[-1]["metar"] != metar_data:
     time_str = f"{parsed['hour']}.{parsed['minute']}"
 
     wind = f"{parsed['wind_dir']}°/{parsed['wind_speed_kt']} KT"
-    vis = f"{int(parsed['visibility_m']/1000)} KM"
-
+    if parsed["visibility_m"]:
+        vis = f"{int(parsed['visibility_m']/1000)} KM"
+    else:
+        vis = "-"
     cloud = "-"
     if parsed["cloud"]:
         amount = parsed["cloud"][:3]
@@ -191,7 +209,7 @@ QNH     : {parsed['pressure_hpa']} MB
 
 🧠 Interpretasi:
 {narrative}
-"""
+""".strip()
 
     # SIMPAN CSV
     new_row = {
