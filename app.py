@@ -456,8 +456,7 @@ else:
 metar_data = get_metar(station_code)
 
 if metar_data:
-    if len(df_history) == 0 or df_history.iloc[-1]["metar"] != metar_data:
-
+    if df_history.empty or df_history.iloc[-1]["metar"] != metar_data:
         parsed = parse_metar(metar_data)
         tempo = parse_tempo_section(metar_data)
         narrative = generate_metar_narrative(parsed, tempo)
@@ -730,6 +729,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
