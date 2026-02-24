@@ -217,6 +217,11 @@ with st.sidebar:
     if st.button("Logout"):
         st.session_state.logged_in = False
         st.rerun()
+
+if st.session_state.logged_in:
+    st.markdown("🟢 **MODE: ADMIN**")
+else:
+    st.markdown("🌍 **MODE: PUBLIC VIEW**")
 # =========================
 # AUTO REFRESH 1 MENIT
 # =========================
@@ -477,12 +482,12 @@ def send_whatsapp_message(message):
         df_history = pd.read_csv(CSV_FILE)
         if st.session_state.logged_in:
             status, result = upload_to_github(CSV_FILE)
-                if status == 999:
-                    st.info("Tidak ada perubahan pada CSV.")
-                elif status in [200, 201]:
-                    st.success("CSV berhasil diupdate ke GitHub!")
-                else:
-                    st.error(result)
+            if status == 999:
+                st.info("Tidak ada perubahan pada CSV.")
+            elif status in [200, 201]:
+                st.success("CSV berhasil diupdate ke GitHub!")
+            else:
+                st.error(result)
 # =========================
 # GET DATA
 # =========================
@@ -566,10 +571,10 @@ TREND   : {trend_text}
         if st.session_state.last_wa_sent is None or \
            (now - st.session_state.last_wa_sent).seconds > 1800:
             if st.session_state.logged_in:
-                status, result = send_whatsapp_message(full_message)
-                    if status == 200:
-                        st.success("Notifikasi WA terkirim!")
-                    st.session_state.last_wa_sent = now
+            status, result = send_whatsapp_message(full_message)
+                if status == 200:
+                    st.success("Notifikasi WA terkirim!")
+                st.session_state.last_wa_sent = now
 # =========================
 # DISPLAY LATEST
 # =========================
@@ -774,6 +779,7 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
