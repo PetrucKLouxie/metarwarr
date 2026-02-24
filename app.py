@@ -442,6 +442,17 @@ def generate_metar_narrative(parsed, tempo=None):
 # =========================
 # GET DATA
 # =========================
+# =========================
+# CSV SETUP (WAJIB ADA SEBELUM ENGINE)
+# =========================
+
+CSV_FILE = "metar_history.csv"
+
+if not os.path.exists(CSV_FILE):
+    df_history = pd.DataFrame(columns=["station", "time", "metar"])
+    df_history.to_csv(CSV_FILE, index=False)
+else:
+    df_history = pd.read_csv(CSV_FILE)
 metar_data = get_metar(station_code)
 
 if metar_data:
@@ -719,5 +730,6 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
