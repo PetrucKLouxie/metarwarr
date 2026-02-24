@@ -81,6 +81,64 @@ def format_metar_time(parsed):
     month = datetime.utcnow().month
 
     return f"{year}-{month:02d}-{parsed['day']} {parsed['hour']}:{parsed['minute']} UTC"
+
+def generate_metar_narrative(parsed, tempo=None):
+
+    if not parsed["station"]:
+        return "Data METAR tidak valid."
+
+    text = []
+
+    text.append(
+        f"Observasi cuaca di Bandara {parsed['station']} "
+        f"pada tanggal {parsed['day']} pukul {parsed['hour']}:{parsed['minute']} UTC menunjukkan kondisi berikut:"
+    )
+
+    if parsed["wind_dir"] and parsed["wind_speed_kt"]:
+        text.append(
+            f"Angin dari arah {parsed['wind_dir']} derajat "
+            f"dengan kecepatan {parsed['wind_speed_kt']} knot."
+        )
+
+    if parsed["visibility_m"]:
+        km = parsed["visibility_m"] / 1000
+        text.append(f"Jarak pandang sekitar {km:.1f} kilometer.")
+
+    weather_map = {
+        "HZ": "kabut asap",
+        "RA": "hujan",
+        "+RA": "hujan lebat",
+        "-RA": "hujan ringan",
+        "TSRA": "badai petir disertai hujan",
+        "+TSRA": "badai petir kuat disertai hujan"
+    }
+
+    if parsed["weather"]:
+        desc = weather_map.get(parsed["weather"], parsed["weather"])
+        text.append(f"Terdapat fenomena cuaca berupa {desc}.")
+
+    if parsed["cloud"]:
+        amount = parsed["cloud"][:3]
+        height = int(parsed["cloud"][3:6]) * 100
+        text.append(f"Awan {amount} pada ketinggian {height} kaki.")
+
+    if parsed["temperature_c"] and parsed["dewpoint_c"]:
+        text.append(
+            f"Suhu {parsed['temperature_c']}°C dengan titik embun {parsed['dewpoint_c']}°C."
+        )
+
+    if parsed["pressure_hpa"]:
+        text.append(f"Tekanan udara {parsed['pressure_hpa']} hPa.")
+
+    if tempo:
+        text.append(
+            f"Hingga {tempo['until']} UTC diperkirakan visibilitas "
+            f"{tempo['visibility']} meter dengan kondisi {tempo['weather']}."
+        )
+    elif parsed["trend"] == "NOSIG":
+        text.append("Tidak ada perubahan signifikan dalam waktu dekat.")
+
+    return " ".join(text)
     
 metar_data = get_metar(STATION_CODE)
 
@@ -99,6 +157,7 @@ else:
 if df.empty or df.iloc[-1]["metar"] != metar_data:
 
     parsed = parse_metar(metar_data)
+    narrative = generate_metar_narrative(parsed, tempo=None)
 
     # FORMAT WAKTU
     date_str = f"{parsed['day']}/{datetime.utcnow().strftime('%m/%Y')}"
@@ -125,15 +184,6 @@ CLOUD   : {cloud}
 TT/TD   : {parsed['temperature_c']}/{parsed['dewpoint_c']}
 QNH     : {parsed['pressure_hpa']} MB
 """
-
-    # INTERPRETASI
-    narrative = (
-        f"Angin dari {parsed['wind_dir']} derajat "
-        f"{parsed['wind_speed_kt']} knot. "
-        f"Visibilitas {parsed['visibility_m']} meter. "
-        f"Suhu {parsed['temperature_c']}°C. "
-        f"Tekanan {parsed['pressure_hpa']} hPa."
-    )
 
     full_message = f"""📡 METAR UPDATE
 
