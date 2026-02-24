@@ -1,0 +1,38 @@
+name: METAR Auto Update
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Dependencies
+        run: pip install requests pandas
+
+      - name: Run METAR Engine
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_CUSTOM }}
+          GITHUB_REPO: ${{ secrets.GITHUB_REPO }}
+          GITHUB_FILE_PATH: ${{ secrets.GITHUB_FILE_PATH }}
+          FONNTE_TOKEN: ${{ secrets.FONNTE_TOKEN }}
+        run: python metar_engine.py
+
+      - name: Commit & Push if Changed
+        run: |
+          git config user.name "github-actions"
+          git config user.email "actions@github.com"
+          git add metar_history.csv
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto update METAR"
+          git push
