@@ -567,12 +567,10 @@ TREND   : {trend_text}
         if "last_wa_sent" not in st.session_state:
             st.session_state.last_wa_sent = None
         now = datetime.utcnow()
-
-     if (
+if (
     st.session_state.last_wa_sent is None
     or (now - st.session_state.last_wa_sent).seconds > 1800
 ):
-
     if st.session_state.logged_in:
 
         status, result = send_whatsapp_message(full_message)
@@ -787,6 +785,7 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
