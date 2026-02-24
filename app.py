@@ -45,7 +45,40 @@ st.markdown("""
 [data-testid="stExpander"] > div:first-child {
     background-color: transparent !important;
 }
+/* =========================
+   SIDEBAR DARK MODE
+========================= */
 
+section[data-testid="stSidebar"] {
+    background-color: #0F172A !important;
+}
+
+section[data-testid="stSidebar"] * {
+    color: #E5E7EB !important;
+}
+
+/* Input di sidebar */
+section[data-testid="stSidebar"] input {
+    background-color: #1F2937 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    border: 1px solid #334155 !important;
+}
+
+/* Tombol di sidebar */
+section[data-testid="stSidebar"] button {
+    background: linear-gradient(90deg,#00FFAA,#00CC88) !important;
+    color: black !important;
+    border-radius: 10px !important;
+    font-weight: bold !important;
+}
+
+/* Header sidebar */
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3 {
+    color: #00FFAA !important;
+}
 /* Table full dark */
 table {
     background-color: #0F172A !important;
@@ -229,6 +262,26 @@ else:
 
 if "last_wa_sent" not in st.session_state:
     st.session_state.last_wa_sent = None
+
+# =========================
+# SEND WHATSAPP
+# =========================
+def send_whatsapp_message(message):
+
+    url = "https://api.fonnte.com/send"
+
+    headers = {
+        "Authorization": st.secrets["FONNTE_TOKEN"]
+    }
+
+    data = {
+        "target": "6282126910641",
+        "message": message
+    }
+
+    response = requests.post(url, headers=headers, data=data)
+
+    return response.status_code, response.text
 # =========================
 # AUTO REFRESH 1 MENIT
 # =========================
@@ -451,30 +504,6 @@ def generate_metar_narrative(parsed, tempo=None):
 
     return " ".join(text)
 
-def send_whatsapp_message(message):
-
-    url = "https://api.fonnte.com/send"
-
-    headers = {
-        "Authorization": st.secrets["FONNTE_TOKEN"]
-    }
-
-    data = {
-        "target": "6282126910641",
-        "message": message
-    }
-
-    try:
-        response = requests.post(url, headers=headers, data=data)
-
-        st.write("WA Status:", response.status_code)
-        st.write("WA Response:", response.text)
-
-        return response.status_code, response.text
-
-    except Exception as e:
-        st.error(f"WA Error: {e}")
-        return 500, str(e)
 
 # =========================
 # CSV SETUP
@@ -571,23 +600,19 @@ TREND   : {trend_text}
         st.success("Data baru ditambahkan ke histori")
 
         # SEND WA
-        if "last_wa_sent" not in st.session_state:
-            st.session_state.last_wa_sent = None
-        now = datetime.utcnow()
-if (
-    st.session_state.last_wa_sent is None
-    or (now - st.session_state.last_wa_sent).seconds > 1800
-):
     if st.session_state.logged_in:
 
-        status, result = send_whatsapp_message(full_message)
+        now = datetime.utcnow()
+        last_sent = st.session_state.get("last_wa_sent")
 
-        if status == 200:
-            st.success("Notifikasi WA terkirim!")
-        else:
-            st.error(f"WA gagal: {result}")
+        if last_sent is None or (now - last_sent).seconds > 1800:
 
-        st.session_state.last_wa_sent = now
+            status, result = send_whatsapp_message(full_message)
+
+            if status == 200:
+                st.success("Notifikasi WA terkirim!")
+
+            st.session_state.last_wa_sent = now
 # =========================
 # DISPLAY LATEST
 # =========================
@@ -792,6 +817,7 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
