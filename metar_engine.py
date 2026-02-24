@@ -21,6 +21,14 @@ def format_metar_time(parsed):
     month = datetime.utcnow().month
 
     return f"{year}-{month:02d}-{parsed['day']} {parsed['hour']}:{parsed['minute']} UTC"
+
+# =========================
+# LOAD CSV
+# =========================
+if os.path.exists(CSV_FILE):
+    df = pd.read_csv(CSV_FILE)
+else:
+    df = pd.DataFrame(columns=["station","time","metar"])
     
 if df.empty or df.iloc[-1]["metar"] != metar_data:
 
