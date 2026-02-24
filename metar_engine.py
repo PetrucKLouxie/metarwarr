@@ -196,13 +196,17 @@ BANDARA JUANDA {STATION_CODE}
 DATE : {date_str}
 TIME : {time_str} UTC
 ========================
-WIND    : {wind}
-VIS     : {vis}
+WIND        : {wind}
+VIS         : {vis}
+WEATHER     : {}
+WEATHER : {parsed['weather'] if parsed['weather'] else 'NIL'}
 CLOUD   : {cloud}
 TT/TD   : {parsed['temperature_c']}/{parsed['dewpoint_c']}
 QNH     : {parsed['pressure_hpa']} MB
+QFE     : {parsed['pressure_hpa']} MB
+REMARKS : NIL
+TREND   : {trend_text}
 """
-
     full_message = f"""📡 METAR UPDATE
 
 {qam_report}
