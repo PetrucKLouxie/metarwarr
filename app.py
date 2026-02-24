@@ -190,7 +190,7 @@ with st.sidebar:
 
     if st.session_state.logged_in:
         st.success("Admin Active")
-        if st.button("Logout"):
+        if st.button("Logout", key= "logout_sidebar"):
             st.session_state.logged_in = False
             st.rerun()
 
@@ -214,7 +214,7 @@ if st.session_state.show_login and not st.session_state.logged_in:
 
 # Sidebar logout
 with st.sidebar:
-    if st.button("Logout"):
+    if st.button("Logout", key="logout_main"):
         st.session_state.logged_in = False
         st.rerun()
 
@@ -785,6 +785,7 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
