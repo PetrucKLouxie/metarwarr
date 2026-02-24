@@ -2,28 +2,69 @@ import streamlit as st
 import requests
 import pandas as pd
 import os
+import re
 import base64
 import streamlit.components.v1 as components
 from datetime import datetime, timezone
 from streamlit_autorefresh import st_autorefresh
 
-
-# =========================================================
-# PAGE CONFIG
-# =========================================================
+# =========================
+# CONFIG PAGE
+# =========================
 st.set_page_config(page_title="METAR Realtime Global", layout="wide")
 
+st.markdown("""
+<h1 style='text-align: center; color: #00FFAA;'>
+🛫 METAR REAL-TIME MONITORING SYSTEM
+</h1>
+<h3 style='text-align:center; color:#DCDCDC;'>
+📍 JUANDA INTERNATIONAL AIRPORT (WARR)
+</h3>
+<p style='text-align:center; color:#AAAAAA;'>
+Surabaya – Indonesia
+</p>
+""", unsafe_allow_html=True)
 
-# =========================================================
-# LOGIN SYSTEM (ADMIN ONLY)
-# =========================================================
+# =========================
+# CUSTOM THEME (TETAP)
+# =========================
+st.markdown("""
+<style>
+.stApp { background-color: #0E1117; }
+h1, h2, h3, h4 { color: #00FFAA; }
+p, label, div { color: #E5E7EB; }
+textarea { background-color: #111827 !important; color:#00FFAA !important; }
+input { background-color:#1F2937 !important; color:white !important; }
+[data-testid="stMetric"] {
+    background: linear-gradient(135deg, #1E293B, #0F172A);
+    border: 1px solid #1F2937;
+    padding: 20px;
+    border-radius: 15px;
+}
+div.stButton > button {
+    background: linear-gradient(90deg,#00FFAA,#00CC88);
+    color: black;
+    border-radius: 12px;
+    font-weight: bold;
+}
+div.stDownloadButton > button {
+    background: linear-gradient(90deg,#00FFAA,#00CC88);
+    color: black;
+    font-weight: bold;
+    border-radius: 15px;
+    padding: 12px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# =========================
+# LOGIN ADMIN ONLY
+# =========================
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
-
 def login():
     st.subheader("🔐 Admin Login")
-
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
 
@@ -38,7 +79,6 @@ def login():
         else:
             st.error("Username atau password salah")
 
-
 if not st.session_state.logged_in:
     login()
     st.stop()
@@ -48,46 +88,37 @@ with st.sidebar:
         st.session_state.logged_in = False
         st.rerun()
 
-
-# =========================================================
+# =========================
 # AUTO REFRESH
-# =========================================================
+# =========================
 st_autorefresh(interval=60000, key="refresh")
 
-
-# =========================================================
-# CONSTANT
-# =========================================================
 STATION_CODE = "WARR"
 CSV_FILE = "metar_history.csv"
 
-
-# =========================================================
+# =========================
 # GET METAR
-# =========================================================
+# =========================
 def get_metar(station):
     try:
         url = f"https://tgftp.nws.noaa.gov/data/observations/metar/stations/{station}.TXT"
         r = requests.get(url, timeout=10)
         if r.status_code == 200:
             return r.text.strip().split("\n")[-1]
-        return None
     except:
         return None
 
-
-# =========================================================
+# =========================
 # TIME FORMAT
-# =========================================================
+# =========================
 def get_rounded_utc_time():
     now = datetime.now(timezone.utc)
     minute = 30 if now.minute >= 30 else 0
     return now.replace(minute=minute, second=0, microsecond=0).strftime("%Y-%m-%d %H:%M UTC")
 
-
-# =========================================================
+# =========================
 # GITHUB UPLOAD
-# =========================================================
+# =========================
 def upload_to_github(file_path):
 
     token = st.secrets["GITHUB_TOKEN"]
@@ -128,83 +159,61 @@ def upload_to_github(file_path):
     r = requests.put(url, headers=headers, json=data)
     return r.status_code, r.json()
 
-
-# =========================================================
+# =========================
 # PARSE METAR
-# =========================================================
+# =========================
 def parse_metar(metar):
-
     data = {
-        "station": None,
-        "day": None,
-        "hour": None,
-        "minute": None,
-        "wind_dir": None,
-        "wind_speed_kt": None,
-        "visibility_m": None,
-        "weather": None,
-        "cloud": None,
-        "temperature_c": None,
-        "dewpoint_c": None,
-        "pressure_hpa": None,
-        "trend": None
+        "station": None, "day": None, "hour": None, "minute": None,
+        "wind_dir": None, "wind_speed_kt": None,
+        "visibility_m": None, "weather": None, "cloud": None,
+        "temperature_c": None, "dewpoint_c": None,
+        "pressure_hpa": None, "trend": None
     }
 
     parts = metar.replace("=", "").split()
 
     for part in parts:
-
         if len(part) == 4 and part.isalpha():
             data["station"] = part
-
         if part.endswith("Z") and len(part) == 7:
             data["day"] = part[0:2]
             data["hour"] = part[2:4]
             data["minute"] = part[4:6]
-
         if part.endswith("KT"):
             data["wind_dir"] = part[0:3]
             data["wind_speed_kt"] = part[3:5]
-
         if part.isdigit() and len(part) == 4:
             data["visibility_m"] = int(part)
-
-        if part.startswith(("FEW", "SCT", "BKN", "OVC")):
+        if part.startswith(("FEW","SCT","BKN","OVC")):
             data["cloud"] = part
-
         if "/" in part and len(part) == 5:
             t, d = part.split("/")
             data["temperature_c"] = t
             data["dewpoint_c"] = d
-
         if part.startswith("Q"):
             data["pressure_hpa"] = part[1:]
-
         if part == "NOSIG":
             data["trend"] = part
 
     return data
 
-
-# =========================================================
+# =========================
 # CSV SETUP
-# =========================================================
+# =========================
 if not os.path.exists(CSV_FILE):
-    df_history = pd.DataFrame(columns=["station", "time", "metar"])
+    df_history = pd.DataFrame(columns=["station","time","metar"])
     df_history.to_csv(CSV_FILE, index=False)
 else:
     df_history = pd.read_csv(CSV_FILE)
 
-
-# =========================================================
-# MAIN ENGINE
-# =========================================================
+# =========================
+# ENGINE
+# =========================
 metar_data = get_metar(STATION_CODE)
 
 if metar_data:
     if len(df_history) == 0 or df_history.iloc[-1]["metar"] != metar_data:
-
-        parsed = parse_metar(metar_data)
 
         new_row = {
             "station": STATION_CODE,
@@ -215,27 +224,23 @@ if metar_data:
         df_history = pd.concat([df_history, pd.DataFrame([new_row])], ignore_index=True)
         df_history.to_csv(CSV_FILE, index=False)
 
-        status, result = upload_to_github(CSV_FILE)
+        upload_to_github(CSV_FILE)
 
-        if status == 999:
-            st.info("Tidak ada perubahan.")
-        elif status in [200, 201]:
-            st.success("CSV berhasil diupdate ke GitHub!")
-        else:
-            st.error(result)
-
-
-# =========================================================
+# =========================
 # DISPLAY
-# =========================================================
-st.title("🛫 METAR REAL-TIME MONITORING SYSTEM")
-st.subheader("JUANDA INTERNATIONAL AIRPORT (WARR)")
-
+# =========================
 if len(df_history) > 0:
     latest = df_history.iloc[-1]
     parsed = parse_metar(latest["metar"])
 
-    st.code(latest["metar"])
+    st.subheader(f"📡 METAR Terbaru - {latest['station']}")
+
+    st.markdown(f"""
+    <div style="background:#111827;padding:15px;border-radius:10px;
+    font-family:monospace;color:#00FFAA;border:1px solid #1F2937;">
+    {latest["metar"]}
+    </div>
+    """, unsafe_allow_html=True)
 
     col1, col2, col3 = st.columns(3)
 
@@ -245,3 +250,12 @@ if len(df_history) > 0:
 
     with st.expander("📜 METAR History (Last 20 Records)"):
         st.table(df_history.tail(20))
+
+    with open(CSV_FILE, "rb") as file:
+        st.download_button(
+            label="⬇ Download METAR History (CSV)",
+            data=file,
+            file_name="metar_history.csv",
+            mime="text/csv",
+            use_container_width=True
+        )
