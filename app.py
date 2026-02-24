@@ -254,7 +254,7 @@ if not VIEW_MODE:
             "branch": "main"
         }
 
-        if sha:
+            if sha:
         data["sha"] = sha
 
         r = requests.put(url, headers=headers, json=data)
@@ -723,6 +723,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
