@@ -5,7 +5,6 @@ from datetime import datetime, timezone
 
 STATION_CODE = "WARR"
 CSV_FILE = "metar_history.csv"
-FONNTE_TOKEN = os.environ["FONNTE_TOKEN"]
 
 # =========================
 # GET METAR
