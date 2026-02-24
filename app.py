@@ -258,25 +258,6 @@ if "last_wa_sent" not in st.session_state:
     st.session_state.last_wa_sent = None
 
 # =========================
-# SEND WHATSAPP
-# =========================
-def send_whatsapp_message(message):
-
-    url = "https://api.fonnte.com/send"
-
-    headers = {
-        "Authorization": st.secrets["FONNTE_TOKEN"]
-    }
-
-    data = {
-        "target": "6282126910641",
-        "message": message
-    }
-
-    response = requests.post(url, headers=headers, data=data)
-
-    return response.status_code, response.text
-# =========================
 # AUTO REFRESH 1 MENIT
 # =========================
 st_autorefresh(interval=60000, key="refresh")
@@ -310,51 +291,6 @@ def get_rounded_utc_time():
     minute = 30 if now.minute >= 30 else 0
     rounded = now.replace(minute=minute, second=0, microsecond=0)
     return rounded.strftime("%Y-%m-%d %H:%M UTC")
-# =========================
-# Upload File
-# =========================
-def upload_to_github(file_path):
-
-    token = st.secrets["GITHUB_TOKEN"]
-    repo = st.secrets["GITHUB_REPO"]
-    github_path = st.secrets["GITHUB_FILE_PATH"]
-
-    with open(file_path, "rb") as f:
-        local_content = f.read()
-
-    encoded_content = base64.b64encode(local_content).decode()
-
-    url = f"https://api.github.com/repos/{repo}/contents/{github_path}"
-
-    headers = {
-        "Authorization": f"token {token}",
-        "Accept": "application/vnd.github+json"
-    }
-
-    response = requests.get(url, headers=headers)
-
-    if response.status_code == 200:
-        github_content = base64.b64decode(response.json()["content"])
-
-        if github_content == local_content:
-            return 999, "No changes detected"
-
-        sha = response.json()["sha"]
-    else:
-        sha = None
-
-    data = {
-        "message": "Update METAR history CSV",
-        "content": encoded_content,
-        "branch": "main"
-    }
-
-    if sha:
-        data["sha"] = sha
-
-    r = requests.put(url, headers=headers, json=data)
-
-    return r.status_code, r.json()
 # =========================
 # PARSE TEMPO
 # =========================
@@ -499,109 +435,14 @@ def generate_metar_narrative(parsed, tempo=None):
     return " ".join(text)
 # =========================
 # =========================
-# CSV SETUP
+# CSV SETUP (READ ONLY)
 # =========================
 CSV_FILE = "metar_history.csv"
 
-if not os.path.exists(CSV_FILE):
-    df_history = pd.DataFrame(columns=["station","time","metar"])
-    df_history.to_csv(CSV_FILE, index=False)
-else:
+if os.path.exists(CSV_FILE):
     df_history = pd.read_csv(CSV_FILE)
-
-# =========================
-# ENGINE
-# =========================
-# =========================
-# ENGINE
-# =========================
-metar_data = get_metar(station_code)
-
-if metar_data:
-
-    if df_history.empty or df_history.iloc[-1]["metar"] != metar_data:
-
-        st.success("Data baru terdeteksi.")
-
-        parsed = parse_metar(metar_data)
-        tempo = parse_tempo_section(metar_data)
-        narrative = generate_metar_narrative(parsed, tempo)
-
-        # FORMAT QAM
-        date_str = f"{parsed['day']}/{datetime.utcnow().strftime('%m/%Y')}" if parsed['day'] else "-"
-        time_str = f"{parsed['hour']}.{parsed['minute']}" if parsed['hour'] else "-"
-
-        wind = f"{parsed['wind_dir']}°/{parsed['wind_speed_kt']} KT" if parsed['wind_dir'] else "NIL"
-        vis = f"{int(parsed['visibility_m']/1000)} KM" if parsed['visibility_m'] else "NIL"
-
-        cloud = "-"
-        if parsed["cloud"]:
-            amount = parsed["cloud"][:3]
-            height = int(parsed["cloud"][3:6]) * 100
-            cloud = f"{amount} {height}FT"
-
-        trend_text = parsed["trend"] if parsed["trend"] else "NIL"
-        if tempo:
-            trend_text = f"TEMPO TL{tempo['until']} {tempo['visibility']} {tempo['weather']}"
-
-        qam_report = f"""MET REPORT (QAM)
-BANDARA JUANDA {station_code.upper()}
-DATE : {date_str}
-TIME : {time_str} UTC
-========================
-WIND    : {wind}
-VIS     : {vis}
-WEATHER : {parsed['weather'] if parsed['weather'] else 'NIL'}
-CLOUD   : {cloud}
-TT/TD   : {parsed['temperature_c']}/{parsed['dewpoint_c']}
-QNH     : {parsed['pressure_hpa']} MB
-QFE     : {parsed['pressure_hpa']} MB
-REMARKS : NIL
-TREND   : {trend_text}
-"""
-
-        full_message = f"""📡 METAR UPDATE
-
-{qam_report}
-
-🧠 Interpretasi:
-{narrative}
-"""
-
-        # SIMPAN CSV
-        new_row = {
-            "station": station_code.upper(),
-            "time": get_rounded_utc_time(),
-            "metar": metar_data
-        }
-
-        df_history = pd.concat(
-            [df_history, pd.DataFrame([new_row])],
-            ignore_index=True
-        )
-        df_history.to_csv(CSV_FILE, index=False)
-
-        # UPLOAD GITHUB (ADMIN ONLY)
-        if st.session_state.logged_in:
-            upload_to_github(CSV_FILE)
-
-        # KIRIM WA (ADMIN ONLY)
-        if st.session_state.logged_in:
-
-            now = datetime.utcnow()
-            last_sent = st.session_state.get("last_wa_sent")
-
-            if last_sent is None or (now - last_sent).seconds > 1800:
-
-                status, result = send_whatsapp_message(full_message)
-
-                if status == 200:
-                    st.success("Notifikasi WA terkirim!")
-
-                st.session_state.last_wa_sent = now
-
-    else:
-        st.info("Tidak ada METAR baru.")
+else:
+    df_history = pd.DataFrame(columns=["station","time","metar"])
 # =========================
 # DISPLAY LATEST
 # =========================
@@ -806,6 +647,7 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
