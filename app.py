@@ -690,7 +690,7 @@ with col2:
     # 4️⃣ GENERATIVE TEXT
     # =========================
     st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
-    st.subheader("🧠 Interpretasi METAR (Generative Text)")
+    st.subheader("🧠 Interpretasi METAR")
     st.write(narrative)
 
     # =========================
@@ -699,7 +699,7 @@ with col2:
 
 st.markdown("<hr style='border:1px solid #1F2937;'>", unsafe_allow_html=True)
 
-with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
+with st.expander("📜 METAR History ", expanded=False):
 
     st.markdown("### 📊 Latest 20 Records")
     st.caption(f"Total records stored: {len(df_history)}")
@@ -729,6 +729,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
