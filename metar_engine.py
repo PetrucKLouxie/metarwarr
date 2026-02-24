@@ -5,7 +5,7 @@ from datetime import datetime, timezone
 
 STATION_CODE = "WARR"
 CSV_FILE = "metar_history.csv"
-FONNTE_TOKEN = os.environ["FONNTE_TOKEN"]
+FONNTE_TOKEN = os.getenv("FONNTE_TOKEN")
 
 def get_metar(station):
     url = f"https://tgftp.nws.noaa.gov/data/observations/metar/stations/{station}.TXT"
@@ -181,30 +181,23 @@ if not metar_data:
     print("No data")
     exit()
 
-# =========================
 # LOAD CSV
-# =========================
-CSV_FILE = "metar_history.csv"
-
-if os.path.exists(CSV_FILE):
-    df_history = pd.read_csv(CSV_FILE)
-else:
-    
-    df_history = pd.DataFrame(columns=["station","time","metar"])
 if os.path.exists(CSV_FILE):
     df = pd.read_csv(CSV_FILE)
 else:
     df = pd.DataFrame(columns=["station","time","metar"])
-    
 
+# CHECK METAR BARU
 if df.empty or df.iloc[-1]["metar"] != metar_data:
 
-    latest = df_history.iloc[-1]
     parsed = parse_metar(metar_data)
-    weather_text = parsed['weather'] if parsed['weather'] else "NIL"
-    tempo = parse_tempo_section(latest["metar"])
+    tempo = parse_tempo_section(metar_data)
+
     narrative = generate_metar_narrative(parsed, tempo)
+
+    weather_text = parsed['weather'] if parsed['weather'] else "NIL"
     trend_text = parsed["trend"] if parsed["trend"] else "NIL"
+
     if tempo:
         trend_text = f"TEMPO TL{tempo['until']} {tempo['visibility']} {tempo['weather']}"
 
