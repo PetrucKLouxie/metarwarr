@@ -13,6 +13,66 @@ def get_metar(station):
     if r.status_code == 200:
         return r.text.strip().split("\n")[-1]
     return None
+
+def parse_metar(metar):
+
+    data = {
+        "station": None,
+        "day": None,
+        "hour": None,
+        "minute": None,
+        "wind_dir": None,
+        "wind_speed_kt": None,
+        "visibility_m": None,
+        "cloud": None,
+        "temperature_c": None,
+        "dewpoint_c": None,
+        "pressure_hpa": None
+    }
+
+    parts = metar.replace("=", "").split()
+
+    for part in parts:
+
+        if len(part) == 4 and part.isalpha():
+            data["station"] = part
+
+        if part.endswith("Z") and len(part) == 7:
+            data["day"] = part[0:2]
+            data["hour"] = part[2:4]
+            data["minute"] = part[4:6]
+
+        if part.endswith("KT"):
+            data["wind_dir"] = part[0:3]
+            data["wind_speed_kt"] = part[3:5]
+
+        if part.isdigit() and len(part) == 4:
+            data["visibility_m"] = int(part)
+
+        if part.startswith(("FEW","SCT","BKN","OVC")):
+            data["cloud"] = part
+
+        if "/" in part and len(part) == 5:
+            t, d = part.split("/")
+            data["temperature_c"] = t
+            data["dewpoint_c"] = d
+
+        if part.startswith("Q"):
+            data["pressure_hpa"] = part[1:]
+
+    return data
+    
+def send_whatsapp(message):
+    url = "https://api.fonnte.com/send"
+    headers = {"Authorization": FONNTE_TOKEN}
+    data = {
+        "target": "6282126910641",
+        "message": message
+    }
+
+    r = requests.post(url, headers=headers, data=data)
+    print("WA status:", r.status_code)
+    
 def format_metar_time(parsed):
     if not parsed["day"]:
         return datetime.utcnow().strftime("%Y-%m-%d %H:%M UTC")
