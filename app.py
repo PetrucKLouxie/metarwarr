@@ -401,25 +401,30 @@ def generate_metar_narrative(parsed, tempo=None):
 
     return " ".join(text)
 
-# =========================
-# SEND WHATSAPP
-# =========================
-    def send_whatsapp_message(message):
+def send_whatsapp_message(message):
 
-        url = "https://api.fonnte.com/send"
+    url = "https://api.fonnte.com/send"
 
-        headers = {
-            "Authorization": st.secrets["FONNTE_TOKEN"]
-        }
+    headers = {
+        "Authorization": st.secrets["FONNTE_TOKEN"]
+    }
 
-        data = {
-            "target": "6282126910641",
-            "message": message
-        }
+    data = {
+        "target": "6282126910641",
+        "message": message
+    }
 
+    try:
         response = requests.post(url, headers=headers, data=data)
 
+        st.write("WA Status:", response.status_code)
+        st.write("WA Response:", response.text)
+
         return response.status_code, response.text
+
+    except Exception as e:
+        st.error(f"WA Error: {e}")
+        return 500, str(e)
 
 # =========================
 # CSV SETUP
@@ -729,6 +734,7 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
