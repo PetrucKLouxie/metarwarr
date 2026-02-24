@@ -151,9 +151,9 @@ def generate_metar_narrative(parsed, tempo=None):
             f"Hingga {tempo['until']} UTC diperkirakan visibilitas "
             f"{tempo['visibility']} meter dengan kondisi {tempo['weather']}."
         )
-    elif parsed["trend"] == "NOSIG":
+    elif parsed.get("trend") == "NOSIG":
         text.append("Tidak ada perubahan signifikan dalam waktu dekat.")
-
+    
     return " ".join(text)
     
 metar_data = get_metar(STATION_CODE)
@@ -174,6 +174,7 @@ if df.empty or df.iloc[-1]["metar"] != metar_data:
 
     parsed = parse_metar(metar_data)
     narrative = generate_metar_narrative(parsed, tempo=None)
+    weather_text = parsed['weather'] if parsed['weather'] else "NIL"
 
     # FORMAT WAKTU
     date_str = f"{parsed['day']}/{datetime.utcnow().strftime('%m/%Y')}"
@@ -196,10 +197,9 @@ BANDARA JUANDA {STATION_CODE}
 DATE : {date_str}
 TIME : {time_str} UTC
 ========================
-WIND        : {wind}
-VIS         : {vis}
-WEATHER     : {}
-WEATHER : {parsed['weather'] if parsed['weather'] else 'NIL'}
+WIND    : {wind}
+VIS     : {vis}
+WEATHER : {weather_text}
 CLOUD   : {cloud}
 TT/TD   : {parsed['temperature_c']}/{parsed['dewpoint_c']}
 QNH     : {parsed['pressure_hpa']} MB
