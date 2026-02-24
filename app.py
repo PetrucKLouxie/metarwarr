@@ -581,32 +581,53 @@ TREND   : {trend_text}
 {narrative}
 """
 
-        # SAVE CSV
+       metar_data = get_metar(STATION_CODE)
+
+if metar_data:
+
+    if df_history.empty or df_history.iloc[-1]["metar"] != metar_data:
+
+        parsed = parse_metar(metar_data)
+        narrative = generate_narrative(parsed)
+
+        full_message = f"""
+📡 METAR UPDATE
+
+{metar_data}
+
+🧠 Interpretasi:
+{narrative}
+"""
+
+        # simpan ke CSV
         new_row = {
-            "station": station_code.upper(),
-            "time": get_rounded_utc_time(),
+            "station": STATION_CODE,
+            "time": datetime.utcnow(),
             "metar": metar_data
         }
 
-        df_history = pd.concat([df_history, pd.DataFrame([new_row])], ignore_index=True)
+        df_history = pd.concat(
+            [df_history, pd.DataFrame([new_row])],
+            ignore_index=True
+        )
         df_history.to_csv(CSV_FILE, index=False)
 
-        st.success("Data baru ditambahkan ke histori")
+        # =========================
+        # KIRIM WA (ADMIN ONLY)
+        # =========================
+        if st.session_state.logged_in:
 
-        # SEND WA
-    if st.session_state.logged_in:
+            now = datetime.utcnow()
+            last_sent = st.session_state.get("last_wa_sent")
 
-        now = datetime.utcnow()
-        last_sent = st.session_state.get("last_wa_sent")
+            if last_sent is None or (now - last_sent).seconds > 1800:
 
-        if last_sent is None or (now - last_sent).seconds > 1800:
+                status, result = send_whatsapp_message(full_message)
 
-            status, result = send_whatsapp_message(full_message)
+                if status == 200:
+                    st.success("Notifikasi WA terkirim!")
 
-            if status == 200:
-                st.success("Notifikasi WA terkirim!")
-
-            st.session_state.last_wa_sent = now
+                st.session_state.last_wa_sent = now
 # =========================
 # DISPLAY LATEST
 # =========================
@@ -811,6 +832,7 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
