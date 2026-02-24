@@ -22,7 +22,7 @@ def format_metar_time(parsed):
 
     return f"{year}-{month:02d}-{parsed['day']} {parsed['hour']}:{parsed['minute']} UTC"
     
-metar_data = get_metar(station)
+metar_data = get_metar(STATION_CODE)
 
 if not metar_data:
     print("No data")
