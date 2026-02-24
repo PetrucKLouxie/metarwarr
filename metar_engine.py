@@ -175,6 +175,10 @@ if df.empty or df.iloc[-1]["metar"] != metar_data:
     parsed = parse_metar(metar_data)
     narrative = generate_metar_narrative(parsed, tempo=None)
     weather_text = parsed['weather'] if parsed['weather'] else "NIL"
+    trend_text = parsed["trend"] if parsed["trend"] else "NIL"
+    if tempo:
+        trend_text = f"TEMPO TL{tempo['until']} {tempo['visibility']} {tempo['weather']}"
+
 
     # FORMAT WAKTU
     date_str = f"{parsed['day']}/{datetime.utcnow().strftime('%m/%Y')}"
