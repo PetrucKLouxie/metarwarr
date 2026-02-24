@@ -21,6 +21,12 @@ def format_metar_time(parsed):
     month = datetime.utcnow().month
 
     return f"{year}-{month:02d}-{parsed['day']} {parsed['hour']}:{parsed['minute']} UTC"
+    
+metar_data = get_metar(station)
+
+if not metar_data:
+    print("No data")
+    exit()
 
 # =========================
 # LOAD CSV
