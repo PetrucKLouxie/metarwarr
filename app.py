@@ -170,9 +170,47 @@ def login():
             st.error("Username atau password salah")
 
 # 🔥 BLOCK TOTAL kalau belum login
-if not st.session_state.logged_in:
-    login()
-    st.stop()
+# =========================
+# ADMIN LOGIN SYSTEM (PUBLIC VIEW MODE)
+# =========================
+
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+if "show_login" not in st.session_state:
+    st.session_state.show_login = False
+
+with st.sidebar:
+
+    st.markdown("### 🔐 Admin Panel")
+
+    if not st.session_state.logged_in:
+        if st.button("Admin Login"):
+            st.session_state.show_login = True
+
+    if st.session_state.logged_in:
+        st.success("Admin Active")
+        if st.button("Logout"):
+            st.session_state.logged_in = False
+            st.rerun()
+
+# Login form muncul kalau ditekan
+if st.session_state.show_login and not st.session_state.logged_in:
+
+    st.sidebar.markdown("#### Login Required")
+    username = st.sidebar.text_input("Username")
+    password = st.sidebar.text_input("Password", type="password")
+
+    if st.sidebar.button("Submit Login"):
+        if (
+            username == st.secrets["ADMIN_USERNAME"]
+            and password == st.secrets["ADMIN_PASSWORD"]
+        ):
+            st.session_state.logged_in = True
+            st.session_state.show_login = False
+            st.rerun()
+        else:
+            st.sidebar.error("Username / Password salah")
 
 # Sidebar logout
 with st.sidebar:
@@ -437,13 +475,14 @@ def send_whatsapp_message(message):
         df_history.to_csv(CSV_FILE, index=False)
     else:
         df_history = pd.read_csv(CSV_FILE)
-        status, result = upload_to_github(CSV_FILE)
-        if status == 999:
-            st.info("Tidak ada perubahan pada CSV.")
-        elif status in [200, 201]:
-            st.success("CSV berhasil diupdate ke GitHub!")
-        else:
-            st.error(result)
+        if st.session_state.logged_in:
+            status, result = upload_to_github(CSV_FILE)
+                if status == 999:
+                    st.info("Tidak ada perubahan pada CSV.")
+                elif status in [200, 201]:
+                    st.success("CSV berhasil diupdate ke GitHub!")
+                else:
+                    st.error(result)
 # =========================
 # GET DATA
 # =========================
@@ -526,10 +565,11 @@ TREND   : {trend_text}
 
         if st.session_state.last_wa_sent is None or \
            (now - st.session_state.last_wa_sent).seconds > 1800:
-            status, result = send_whatsapp_message(full_message)
-            if status == 200:
-                st.success("Notifikasi WA terkirim!")
-            st.session_state.last_wa_sent = now
+            if st.session_state.logged_in:
+                status, result = send_whatsapp_message(full_message)
+                    if status == 200:
+                        st.success("Notifikasi WA terkirim!")
+                    st.session_state.last_wa_sent = now
 # =========================
 # DISPLAY LATEST
 # =========================
@@ -734,6 +774,7 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
