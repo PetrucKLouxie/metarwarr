@@ -205,7 +205,7 @@ TT/TD   : {parsed['temperature_c']}/{parsed['dewpoint_c']}
 QNH     : {parsed['pressure_hpa']} MB
 QFE     : {parsed['pressure_hpa']} MB
 REMARKS : NIL
-TREND   : {trend_text}
+TREND   : {tempo}
 """
     full_message = f"""📡 METAR UPDATE
 
