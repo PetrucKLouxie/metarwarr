@@ -23,9 +23,9 @@ jobs:
 
       - name: Run METAR Engine
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN_CUSTOM }}
-          GITHUB_REPO: ${{ secrets.GITHUB_REPO }}
-          GITHUB_FILE_PATH: ${{ secrets.GITHUB_FILE_PATH }}
+          GITHUB_TOKEN: ${{ secrets.TOKEN_CUSTOM }}
+          GITHUB_REPO: ${{ secrets.REPO_WARR }}
+          GITHUB_FILE_PATH: ${{ secrets.FILE_PATH }}
           FONNTE_TOKEN: ${{ secrets.FONNTE_TOKEN }}
         run: python metar_engine.py
 
