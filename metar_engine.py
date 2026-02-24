@@ -189,11 +189,13 @@ if os.path.exists(CSV_FILE):
 else:
     df = pd.DataFrame(columns=["station","time","metar"])
     
+    
 if df.empty or df.iloc[-1]["metar"] != metar_data:
 
     parsed = parse_metar(metar_data)
-    narrative = generate_metar_narrative(parsed, tempo=None)
     weather_text = parsed['weather'] if parsed['weather'] else "NIL"
+    tempo = parse_tempo_section(latest["metar"])
+    narrative = generate_metar_narrative(parsed, tempo)
     trend_text = parsed["trend"] if parsed["trend"] else "NIL"
     if tempo:
         trend_text = f"TEMPO TL{tempo['until']} {tempo['visibility']} {tempo['weather']}"
