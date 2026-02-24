@@ -214,52 +214,52 @@ def get_rounded_utc_time():
 # =========================
 # Upload File
 # =========================
+if not VIEW_MODE:
+    def upload_to_github(file_path):
 
-def upload_to_github(file_path):
+        token = st.secrets["GITHUB_TOKEN"]
+        repo = st.secrets["GITHUB_REPO"]
+        github_path = st.secrets["GITHUB_FILE_PATH"]
 
-    token = st.secrets["GITHUB_TOKEN"]
-    repo = st.secrets["GITHUB_REPO"]
-    github_path = st.secrets["GITHUB_FILE_PATH"]
+        with open(file_path, "rb") as f:
+            local_content = f.read()
 
-    with open(file_path, "rb") as f:
-        local_content = f.read()
+        encoded_content = base64.b64encode(local_content).decode()
+    
+        url = f"https://api.github.com/repos/{repo}/contents/{github_path}"
+    
+        headers = {
+            "Authorization": f"token {token}",
+            "Accept": "application/vnd.github+json"
+        }
 
-    encoded_content = base64.b64encode(local_content).decode()
+        # ambil file dari github
+        response = requests.get(url, headers=headers)
 
-    url = f"https://api.github.com/repos/{repo}/contents/{github_path}"
+        if response.status_code == 200:
+            github_content = response.json()["content"]
+            github_content = base64.b64decode(github_content)
 
-    headers = {
-        "Authorization": f"token {token}",
-        "Accept": "application/vnd.github+json"
-    }
+            # 🔥 cek apakah sama
+            if github_content == local_content:
+                return 999, "No changes detected"
 
-    # ambil file dari github
-    response = requests.get(url, headers=headers)
+            sha = response.json()["sha"]
+        else:
+            sha = None
 
-    if response.status_code == 200:
-        github_content = response.json()["content"]
-        github_content = base64.b64decode(github_content)
+        data = {
+            "message": "Update METAR history CSV",
+            "content": encoded_content,
+            "branch": "main"
+        }
 
-        # 🔥 cek apakah sama
-        if github_content == local_content:
-            return 999, "No changes detected"
-
-        sha = response.json()["sha"]
-    else:
-        sha = None
-
-    data = {
-        "message": "Update METAR history CSV",
-        "content": encoded_content,
-        "branch": "main"
-    }
-
-    if sha:
+        if sha:
         data["sha"] = sha
 
-    r = requests.put(url, headers=headers, json=data)
-
-    return r.status_code, r.json()
+        r = requests.put(url, headers=headers, json=data)
+    
+        return r.status_code, r.json()
 # =========================
 # PARSE TEMPO
 # =========================
@@ -407,42 +407,42 @@ def generate_metar_narrative(parsed, tempo=None):
 # SEND WHATSAPP
 # =========================
 if not VIEW_MODE:
-def send_whatsapp_message(message):
+    def send_whatsapp_message(message):
 
-    url = "https://api.fonnte.com/send"
+        url = "https://api.fonnte.com/send"
 
-    headers = {
-        "Authorization": st.secrets["FONNTE_TOKEN"]
-    }
+        headers = {
+            "Authorization": st.secrets["FONNTE_TOKEN"]
+        }
 
-    data = {
-        "target": "6282126910641",
-        "message": message
-    }
+        data = {
+            "target": "6282126910641",
+            "message": message
+        }
 
-    response = requests.post(url, headers=headers, data=data)
+        response = requests.post(url, headers=headers, data=data)
 
-    return response.status_code, response.text
+        return response.status_code, response.text
 
 # =========================
 # CSV SETUP
 # =========================
 if not VIEW_MODE:
 
-CSV_FILE = "metar_history.csv"
+    CSV_FILE = "metar_history.csv"
 
-if not os.path.exists(CSV_FILE):
-    df_history = pd.DataFrame(columns=["station","time","metar"])
-    df_history.to_csv(CSV_FILE, index=False)
-else:
-    df_history = pd.read_csv(CSV_FILE)
-    status, result = upload_to_github(CSV_FILE)
-    if status == 999:
-        st.info("Tidak ada perubahan pada CSV.")
-    elif status in [200, 201]:
-        st.success("CSV berhasil diupdate ke GitHub!")
+    if not os.path.exists(CSV_FILE):
+        df_history = pd.DataFrame(columns=["station","time","metar"])
+        df_history.to_csv(CSV_FILE, index=False)
     else:
-        st.error(result)
+        df_history = pd.read_csv(CSV_FILE)
+        status, result = upload_to_github(CSV_FILE)
+        if status == 999:
+            st.info("Tidak ada perubahan pada CSV.")
+        elif status in [200, 201]:
+            st.success("CSV berhasil diupdate ke GitHub!")
+        else:
+            st.error(result)
 # =========================
 # GET DATA
 # =========================
@@ -723,6 +723,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
