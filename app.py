@@ -145,7 +145,6 @@ tbody td {
     }
 </style>
 """, unsafe_allow_html=True)
-
 # =========================
 # ADMIN LOGIN SYSTEM
 # =========================
@@ -154,7 +153,6 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 def login():
-
     st.subheader("🔐 Admin Login")
 
     username = st.text_input("Username")
@@ -171,12 +169,16 @@ def login():
         else:
             st.error("Username atau password salah")
 
-# Jika belum login, tampilkan form dan STOP engine
+# 🔥 BLOCK TOTAL kalau belum login
 if not st.session_state.logged_in:
     login()
-    VIEW_MODE = True
-else:
-    VIEW_MODE = False
+    st.stop()
+
+# Sidebar logout
+with st.sidebar:
+    if st.button("Logout"):
+        st.session_state.logged_in = False
+        st.rerun()
 # =========================
 # AUTO REFRESH 1 MENIT
 # =========================
@@ -214,52 +216,48 @@ def get_rounded_utc_time():
 # =========================
 # Upload File
 # =========================
-if not VIEW_MODE:
-    def upload_to_github(file_path):
+def upload_to_github(file_path):
 
-        token = st.secrets["GITHUB_TOKEN"]
-        repo = st.secrets["GITHUB_REPO"]
-        github_path = st.secrets["GITHUB_FILE_PATH"]
+    token = st.secrets["GITHUB_TOKEN"]
+    repo = st.secrets["GITHUB_REPO"]
+    github_path = st.secrets["GITHUB_FILE_PATH"]
 
-        with open(file_path, "rb") as f:
-            local_content = f.read()
+    with open(file_path, "rb") as f:
+        local_content = f.read()
 
-        encoded_content = base64.b64encode(local_content).decode()
-    
-        url = f"https://api.github.com/repos/{repo}/contents/{github_path}"
-    
-        headers = {
-            "Authorization": f"token {token}",
-            "Accept": "application/vnd.github+json"
-        }
+    encoded_content = base64.b64encode(local_content).decode()
 
-        # ambil file dari github
-        response = requests.get(url, headers=headers)
+    url = f"https://api.github.com/repos/{repo}/contents/{github_path}"
 
-        if response.status_code == 200:
-            github_content = response.json()["content"]
-            github_content = base64.b64decode(github_content)
+    headers = {
+        "Authorization": f"token {token}",
+        "Accept": "application/vnd.github+json"
+    }
 
-            # 🔥 cek apakah sama
-            if github_content == local_content:
-                return 999, "No changes detected"
+    response = requests.get(url, headers=headers)
 
-            sha = response.json()["sha"]
-        else:
-            sha = None
+    if response.status_code == 200:
+        github_content = base64.b64decode(response.json()["content"])
 
-        data = {
-            "message": "Update METAR history CSV",
-            "content": encoded_content,
-            "branch": "main"
-        }
+        if github_content == local_content:
+            return 999, "No changes detected"
 
-            if sha:
+        sha = response.json()["sha"]
+    else:
+        sha = None
+
+    data = {
+        "message": "Update METAR history CSV",
+        "content": encoded_content,
+        "branch": "main"
+    }
+
+    if sha:
         data["sha"] = sha
 
-        r = requests.put(url, headers=headers, json=data)
-    
-        return r.status_code, r.json()
+    r = requests.put(url, headers=headers, json=data)
+
+    return r.status_code, r.json()
 # =========================
 # PARSE TEMPO
 # =========================
@@ -406,7 +404,6 @@ def generate_metar_narrative(parsed, tempo=None):
 # =========================
 # SEND WHATSAPP
 # =========================
-if not VIEW_MODE:
     def send_whatsapp_message(message):
 
         url = "https://api.fonnte.com/send"
@@ -723,3 +720,4 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
