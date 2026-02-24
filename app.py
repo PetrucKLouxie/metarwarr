@@ -588,7 +588,7 @@ if metar_data:
     if df_history.empty or df_history.iloc[-1]["metar"] != metar_data:
 
         parsed = parse_metar(metar_data)
-        narrative = generate_narrative(parsed)
+        narrative = generate_narrative(parsed, tempo=None)
 
         full_message = f"""
 📡 METAR UPDATE
@@ -832,6 +832,7 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
