@@ -497,50 +497,32 @@ def generate_metar_narrative(parsed, tempo=None):
         text.append("Tidak ada perubahan signifikan dalam waktu dekat.")
 
     return " ".join(text)
-
-
+# =========================
 # =========================
 # CSV SETUP
 # =========================
-
-    CSV_FILE = "metar_history.csv"
-
-    if not os.path.exists(CSV_FILE):
-        df_history = pd.DataFrame(columns=["station","time","metar"])
-        df_history.to_csv(CSV_FILE, index=False)
-    else:
-        df_history = pd.read_csv(CSV_FILE)
-        if st.session_state.logged_in:
-            status, result = upload_to_github(CSV_FILE)
-            if status == 999:
-                st.info("Tidak ada perubahan pada CSV.")
-            elif status in [200, 201]:
-                st.success("CSV berhasil diupdate ke GitHub!")
-            else:
-                st.error(result)
-# =========================
-# GET DATA
-# =========================
-# =========================
-# CSV SETUP (WAJIB ADA SEBELUM ENGINE)
-# =========================
-
 CSV_FILE = "metar_history.csv"
 
 if not os.path.exists(CSV_FILE):
-    df_history = pd.DataFrame(columns=["station", "time", "metar"])
+    df_history = pd.DataFrame(columns=["station","time","metar"])
     df_history.to_csv(CSV_FILE, index=False)
 else:
     df_history = pd.read_csv(CSV_FILE)
+
+# =========================
+# ENGINE
+# =========================
 metar_data = get_metar(station_code)
 
 if metar_data:
+
     if df_history.empty or df_history.iloc[-1]["metar"] != metar_data:
+
         parsed = parse_metar(metar_data)
         tempo = parse_tempo_section(metar_data)
         narrative = generate_metar_narrative(parsed, tempo)
 
-        # QAM FORMAT
+        # FORMAT QAM
         date_str = f"{parsed['day']}/{datetime.utcnow().strftime('%m/%Y')}" if parsed['day'] else "-"
         time_str = f"{parsed['hour']}.{parsed['minute']}" if parsed['hour'] else "-"
 
@@ -581,28 +563,10 @@ TREND   : {trend_text}
 {narrative}
 """
 
-metar_data = get_metar(station_code)
-
-if metar_data:
-
-    if df_history.empty or df_history.iloc[-1]["metar"] != metar_data:
-
-        parsed = parse_metar(metar_data)
-        narrative = generate_narrative(parsed, tempo=None)
-
-        full_message = f"""
-📡 METAR UPDATE
-
-{metar_data}
-
-🧠 Interpretasi:
-{narrative}
-"""
-
-        # simpan ke CSV
+        # SIMPAN CSV
         new_row = {
-            "station": STATION_CODE,
-            "time": datetime.utcnow(),
+            "station": station_code.upper(),
+            "time": get_rounded_utc_time(),
             "metar": metar_data
         }
 
@@ -612,9 +576,11 @@ if metar_data:
         )
         df_history.to_csv(CSV_FILE, index=False)
 
-        # =========================
+        # UPLOAD GITHUB (ADMIN ONLY)
+        if st.session_state.logged_in:
+            upload_to_github(CSV_FILE)
+
         # KIRIM WA (ADMIN ONLY)
-        # =========================
         if st.session_state.logged_in:
 
             now = datetime.utcnow()
@@ -832,6 +798,7 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
