@@ -222,6 +222,13 @@ if st.session_state.logged_in:
     st.markdown("🟢 **MODE: ADMIN**")
 else:
     st.markdown("🌍 **MODE: PUBLIC VIEW**")
+
+# =========================
+# SESSION STATE INIT
+# =========================
+
+if "last_wa_sent" not in st.session_state:
+    st.session_state.last_wa_sent = None
 # =========================
 # AUTO REFRESH 1 MENIT
 # =========================
@@ -785,6 +792,7 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
