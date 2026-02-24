@@ -424,7 +424,6 @@ def generate_metar_narrative(parsed, tempo=None):
 # =========================
 # CSV SETUP
 # =========================
-if not VIEW_MODE:
 
     CSV_FILE = "metar_history.csv"
 
@@ -720,4 +719,5 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
