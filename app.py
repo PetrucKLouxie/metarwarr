@@ -147,6 +147,37 @@ tbody td {
 """, unsafe_allow_html=True)
 
 # =========================
+# ADMIN LOGIN SYSTEM
+# =========================
+
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+
+def login():
+
+    st.subheader("🔐 Admin Login")
+
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+        if (
+            username == st.secrets["ADMIN_USERNAME"]
+            and password == st.secrets["ADMIN_PASSWORD"]
+        ):
+            st.session_state.logged_in = True
+            st.success("Login berhasil!")
+            st.rerun()
+        else:
+            st.error("Username atau password salah")
+
+# Jika belum login, tampilkan form dan STOP engine
+if not st.session_state.logged_in:
+    login()
+    VIEW_MODE = True
+else:
+    VIEW_MODE = False
+# =========================
 # AUTO REFRESH 1 MENIT
 # =========================
 st_autorefresh(interval=60000, key="refresh")
@@ -375,6 +406,7 @@ def generate_metar_narrative(parsed, tempo=None):
 # =========================
 # SEND WHATSAPP
 # =========================
+if not VIEW_MODE:
 def send_whatsapp_message(message):
 
     url = "https://api.fonnte.com/send"
@@ -395,6 +427,8 @@ def send_whatsapp_message(message):
 # =========================
 # CSV SETUP
 # =========================
+if not VIEW_MODE:
+
 CSV_FILE = "metar_history.csv"
 
 if not os.path.exists(CSV_FILE):
@@ -689,6 +723,7 @@ with st.expander("📜 METAR History (Last 20 Records)", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+
 
 
 
