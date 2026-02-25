@@ -2,7 +2,7 @@ name: METAR Auto Update
 
 on:
   schedule:
-    - cron: "2,7,32,37 * * * *"
+    - cron: "2,9,32,37 * * * *"
   workflow_dispatch:
 
 permissions:
