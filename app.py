@@ -489,8 +489,7 @@ if len(df_history) > 0:
     # =========================
 # DASHBOARD PAGE
 # =========================
-if menu == "📊 Dashboard":
-
+if st.session_state.page == "dashboard":
     # =========================
     # 1️⃣ RAW METAR
     # =========================
@@ -688,13 +687,14 @@ TREND   : {trend_text}
 # =========================
 # GENERATE DATA PAGE
 # =========================
-elif menu == "⚙️ Generate Data":
+elif st.session_state.page == "generate":
 
     st.title("⚙️ Generate Data")
     st.write("Fitur generate data sementara.")
 
     if st.button("Generate Dummy METAR"):
         st.success("Data berhasil digenerate!")
+
 
 
 
