@@ -233,7 +233,7 @@ with st.sidebar:
     # ===== MENU =====
         menu = st.radio(
             "",
-            ["Dashboard", "Generate Data"],
+            ["Dashboard", "Data"],
             label_visibility="collapsed"
         )
 
@@ -282,7 +282,7 @@ else:
 if menu == "Dashboard":
     st.session_state.page = "dashboard"
 
-elif menu == "Generate Data":
+elif menu == "Data":
     st.session_state.page = "generate"
 
 # =========================
@@ -481,6 +481,29 @@ if os.path.exists(CSV_FILE):
     df_history = pd.read_csv(CSV_FILE)
 else:
     df_history = pd.DataFrame(columns=["station","time","metar"])
+
+# =========================
+# CREATE DATETIME COLUMN
+# =========================
+
+def extract_datetime_from_metar(metar_text):
+    try:
+        parts = metar_text.split()
+        time_group = parts[1]  # contoh 230630Z
+
+        day = int(time_group[:2])
+        hour = int(time_group[2:4])
+        minute = int(time_group[4:6])
+
+        now = datetime.utcnow()
+        dt = datetime(now.year, now.month, day, hour, minute)
+
+        return dt
+    except:
+        return None
+
+df_history["datetime"] = df_history["metar"].apply(extract_datetime_from_metar)
+df_history = df_history.dropna(subset=["datetime"])
 # =========================
 # DISPLAY LATEST
 # =========================
@@ -694,10 +717,91 @@ TREND   : {trend_text}
 # =========================
 elif st.session_state.page == "generate":
 
-    st.title("⚙️ Generate Data")
-    st.write("Fitur generate data sementara.")
+    st.title("⚙️ Generate Data & METAR Processor")
 
-    if st.button("Generate Dummy METAR"):
-        st.success("Data berhasil digenerate!")
+    # =========================
+    # 1️⃣ FILTER DATA HISTORY
+    # =========================
+    st.subheader("🔎 Cari Data Berdasarkan Waktu")
 
+    col1, col2 = st.columns(2)
 
+    with col1:
+        start_date = st.date_input("Start Date")
+        start_time = st.time_input("Start Time")
+
+    with col2:
+        end_date = st.date_input("End Date")
+        end_time = st.time_input("End Time")
+
+    if st.button("🔍 Tampilkan Data"):
+        start_datetime = datetime.combine(start_date, start_time)
+        end_datetime = datetime.combine(end_date, end_time)
+
+        df_history["datetime"] = pd.to_datetime(df_history["datetime"])
+
+        filtered = df_history[
+            (df_history["datetime"] >= start_datetime) &
+            (df_history["datetime"] <= end_datetime)
+        ]
+
+        st.success(f"Ditemukan {len(filtered)} data")
+        st.dataframe(filtered)
+
+    st.markdown("<hr>", unsafe_allow_html=True)
+
+    # =========================
+    # 2️⃣ INPUT METAR MANUAL
+    # =========================
+    st.subheader("✍️ Generate QAM & Interpretasi dari METAR")
+
+    user_metar = st.text_area(
+        "Masukkan Kode METAR:",
+        placeholder="Contoh: WARR 230630Z 25008KT 9999 FEW020CB 33/25 Q1005 NOSIG"
+    )
+
+    if st.button("🚀 Generate"):
+
+        if user_metar:
+
+            parsed = parse_metar(user_metar)   # pakai fungsi parsing kamu
+
+            # ===== FORMAT QAM =====
+            date_str = f"{parsed['day']}/{datetime.utcnow().strftime('%m/%Y')}"
+            time_str = f"{parsed['hour']}.{parsed['minute']}"
+
+            wind = f"{parsed['wind_dir']}°/{parsed['wind_speed_kt']} KT"
+            vis = f"{int(parsed['visibility_m']/1000)} KM"
+
+            cloud = "-"
+            if parsed["cloud"]:
+                amount = parsed["cloud"][:3]
+                height = int(parsed["cloud"][3:6]) * 100
+                cloud = f"{amount} {height}FT"
+
+            qam_text = f"""MET REPORT (QAM)
+BANDARA JUANDA {parsed['station']}
+DATE : {date_str}
+TIME : {time_str} UTC
+========================
+WIND    : {wind}
+VIS     : {vis}
+WEATHER : {parsed['weather']}
+CLOUD   : {cloud}
+TT/TD   : {parsed['temperature_c']}/{parsed['dewpoint_c']}
+QNH     : {parsed['pressure_hpa']} MB
+REMARKS : NIL
+TREND   : {parsed['trend']}
+"""
+
+            st.markdown("### 🧾 Format QAM")
+            st.code(qam_text)
+
+            # ===== INTERPRETASI =====
+            narrative = generate_narrative(parsed)  # pakai fungsi interpretasi kamu
+
+            st.markdown("### 🧠 Interpretasi")
+            st.write(narrative)
+
+        else:
+            st.warning("Masukkan kode METAR terlebih dahulu.")
