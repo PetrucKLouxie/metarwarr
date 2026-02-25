@@ -759,7 +759,7 @@ elif st.session_state.page == "generate":
             ]}
         ])
 
-    st.table(styled_filtered)
+        st.table(styled_filtered)
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -884,6 +884,7 @@ TREND   : {trend_text}
     
         else:
             st.warning("Masukkan kode METAR terlebih dahulu.")
+
 
 
 
