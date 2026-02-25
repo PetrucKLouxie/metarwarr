@@ -746,8 +746,6 @@ TREND   : {trend_text}
 # =========================
 elif st.session_state.page == "generate":
 
-    st.title("⚙️ Generate Data & METAR Processor")
-
     # =========================
     # 1️⃣ FILTER DATA HISTORY
     # =========================
@@ -913,6 +911,7 @@ TREND   : {trend_text}
     
         else:
             st.warning("Masukkan kode METAR terlebih dahulu.")
+
 
 
 
