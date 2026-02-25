@@ -586,62 +586,62 @@ TREND   : {trend_text}
 # FORMAT QAM CENTERED CLEAN
 # =========================
 
-st.markdown("<hr style='border:1px solid #1F2937;'>", unsafe_allow_html=True)
-st.markdown("<h3 style='text-align:center;'>🧾 Format QAM</h3>", unsafe_allow_html=True)
+    st.markdown("<hr style='border:1px solid #1F2937;'>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align:center;'>🧾 Format QAM</h3>", unsafe_allow_html=True)
 
-clean_qam = qam_report.replace("`", "").strip()
+    clean_qam = qam_report.replace("`", "").strip()
 
-st.markdown(f"""
-<div style="
-max-width:750px;
-margin:40px auto 20px auto;
-background:linear-gradient(135deg,#0F172A,#111827);
-padding:35px;
-border-radius:25px;
-box-shadow:0 15px 40px rgba(0,0,0,0.6);
-border:1px solid #1F2937;
-font-family:monospace;
-color:#00FFAA;
-white-space:pre-wrap;
-line-height:1.6;
-">
-{clean_qam}
-</div>
-""", unsafe_allow_html=True)
-
-col1, col2, col3 = st.columns([2,3,2])
-
-with col2:
-
-    safe_qam = qam_report.replace("`", "\\`")
-
-    copy_html = f"""
-    <div style="text-align:center; margin-top:20px;">
-        <button onclick="copyText()" 
-            style="
-            background: linear-gradient(90deg,#00FFAA,#00CC88);
-            color: black;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            ">
-            📋 Copy QAM
-        </button>
+    st.markdown(f"""
+    <div style="
+    max-width:750px;
+    margin:40px auto 20px auto;
+    background:linear-gradient(135deg,#0F172A,#111827);
+    padding:35px;
+    border-radius:25px;
+    box-shadow:0 15px 40px rgba(0,0,0,0.6);
+    border:1px solid #1F2937;
+    font-family:monospace;
+    color:#00FFAA;
+    white-space:pre-wrap;
+    line-height:1.6;
+    ">
+    {clean_qam}
     </div>
+    """, unsafe_allow_html=True)
 
-    <script>
-    function copyText() {{
-        const text = `{safe_qam}`;
-        navigator.clipboard.writeText(text).then(function() {{
-            alert("QAM berhasil dicopy!");
-        }});
-    }}
-    </script>
-    """
+    col1, col2, col3 = st.columns([2,3,2])
 
-    components.html(copy_html, height=120)
+    with col2:
+
+        safe_qam = qam_report.replace("`", "\\`")
+
+        copy_html = f"""
+        <div style="text-align:center; margin-top:20px;">
+            <button onclick="copyText()" 
+                style="
+                background: linear-gradient(90deg,#00FFAA,#00CC88);
+                color: black;
+                border: none;
+                padding: 12px 25px;
+                border-radius: 12px;
+                font-weight: bold;
+                cursor: pointer;
+                ">
+                📋 Copy QAM
+            </button>
+        </div>
+
+        <script>
+        function copyText() {{
+            const text = `{safe_qam}`;
+            navigator.clipboard.writeText(text).then(function() {{
+                alert("QAM berhasil dicopy!");
+            }});
+        }}
+        </script>
+        """
+
+        components.html(copy_html, height=120)
     # =========================
     # 4️⃣ GENERATIVE TEXT
     # =========================
@@ -653,27 +653,27 @@ with col2:
     # 5️⃣ HISTORI DATA
     # =========================
 
-st.markdown("<hr style='border:1px solid #1F2937;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='border:1px solid #1F2937;'>", unsafe_allow_html=True)
 
-with st.expander("📜 METAR History ", expanded=False):
+    with st.expander("📜 METAR History ", expanded=False):
 
-    st.markdown("### 📊 Latest 20 Records")
-    st.caption(f"Total records stored: {len(df_history)}")
+        st.markdown("### 📊 Latest 20 Records")
+        st.caption(f"Total records stored: {len(df_history)}")
 
-    styled_df = df_history.tail(20).style.set_table_styles([
-        {"selector": "thead th", "props": [
-            ("background-color", "#111827"),
-            ("color", "#00FFAA"),
-            ("border", "1px solid #1F2937")
-        ]},
-        {"selector": "tbody td", "props": [
-            ("background-color", "#0F172A"),
-            ("color", "#E5E7EB"),
-            ("border", "1px solid #1F2937")
-        ]}
-    ])
+        styled_df = df_history.tail(20).style.set_table_styles([
+            {"selector": "thead th", "props": [
+                ("background-color", "#111827"),
+                ("color", "#00FFAA"),
+                ("border", "1px solid #1F2937")
+            ]},
+            {"selector": "tbody td", "props": [
+                ("background-color", "#0F172A"),
+                ("color", "#E5E7EB"),
+                ("border", "1px solid #1F2937")
+            ]}
+        ])
 
-    st.table(styled_df)
+        st.table(styled_df)
 
     st.markdown("<br>", unsafe_allow_html=True)
 
@@ -695,6 +695,7 @@ elif menu == "⚙️ Generate Data":
 
     if st.button("Generate Dummy METAR"):
         st.success("Data berhasil digenerate!")
+
 
 
 
