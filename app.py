@@ -803,8 +803,6 @@ TREND   : {parsed['trend']}
     st.markdown("<hr style='border:1px solid #1F2937;'>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align:center;'>🧾 Format QAM</h3>", unsafe_allow_html=True)
 
-    clean_qam = qam_report.replace("`", "").strip()
-
     st.markdown(f"""
     <div style="
     max-width:750px;
@@ -866,6 +864,7 @@ TREND   : {parsed['trend']}
     
 else:
     st.warning("Masukkan kode METAR terlebih dahulu.")
+
 
 
 
