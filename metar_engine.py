@@ -7,22 +7,29 @@ STATION_CODE = "WARR"
 CSV_FILE = "metar_history.csv"
 FONNTE_TOKEN = os.getenv("FONNTE_TOKEN")
 
-def get_metar(station):
-    url = f"https://aviationweather.gov/api/data/metar?ids=WARR&format=raw"
-    
-    r = requests.get(
-        url,
-        timeout=10,
-        headers={
-            "Cache-Control": "no-cache",
-            "Pragma": "no-cache"
-        }
-    )
+    url = f"https://aviationweather.gov/api/data/metar?ids={station}&format=raw"
 
-    if r.status_code == 200:
-        lines = r.text.strip().split("\n")
-        print("RAW NOAA:", lines)
-        return lines[-1]
+    try:
+        r = requests.get(
+            url,
+            timeout=10,
+            headers={
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache"
+            }
+        )
+
+        if r.status_code == 200:
+            metar = r.text.strip()
+
+            # Normalisasi (hapus prefix METAR kalau ada)
+            if metar.startswith("METAR "):
+                metar = metar.replace("METAR ", "", 1)
+
+            return metar
+
+    except Exception as e:
+        print("Error ambil METAR:", e)
 
     return None
 
