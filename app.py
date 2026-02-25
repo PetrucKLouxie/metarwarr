@@ -746,7 +746,20 @@ elif st.session_state.page == "generate":
         ]
 
         st.success(f"Ditemukan {len(filtered)} data")
-        st.dataframe(filtered)
+        styled_filtered = filtered.style.set_table_styles([
+            {"selector": "thead th", "props": [
+                ("background-color", "#111827"),
+                ("color", "#00FFAA"),
+                ("border", "1px solid #1F2937")
+            ]},
+            {"selector": "tbody td", "props": [
+                ("background-color", "#0F172A"),
+                ("color", "#E5E7EB"),
+                ("border", "1px solid #1F2937")
+            ]}
+        ])
+
+    st.table(styled_filtered)
 
     st.markdown("<hr>", unsafe_allow_html=True)
 
@@ -871,6 +884,7 @@ TREND   : {trend_text}
     
         else:
             st.warning("Masukkan kode METAR terlebih dahulu.")
+
 
 
 
