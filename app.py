@@ -859,12 +859,13 @@ TREND   : {parsed['trend']}
     st.code(qam_text)
 
             # ===== INTERPRETASI =====
-            narrative = generate_metar_narrative(parsed, tempo)
+    narrative = generate_metar_narrative(parsed, tempo)
+    
+    st.markdown("### 🧠 Interpretasi")
+    st.write(narrative)
+    
+else:
+    st.warning("Masukkan kode METAR terlebih dahulu.")
 
-            st.markdown("### 🧠 Interpretasi")
-            st.write(narrative)
-
-        else:
-            st.warning("Masukkan kode METAR terlebih dahulu.")
 
 
