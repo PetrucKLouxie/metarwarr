@@ -219,14 +219,16 @@ if "show_login" not in st.session_state:
 with st.sidebar:
 
     # ===== LOGO CENTER =====
-    st.markdown("""
-        <div style='text-align:center;'>
-            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Logo_BMKG.png" width="110">
-            <h4 style='margin-top:10px;'>BMKG JUANDA</h4>
-        </div>
-    """, unsafe_allow_html=True)
+        logo_url = "https://raw.githubusercontent.com/PetrucKLouxie/metarwarr/main/assets/logo_bmkg.png"
 
-    st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown(f"""
+            <div style='text-align:center;'>
+                <img src="{logo_url}" width="110">
+                <h4 style='margin-top:10px;'>BMKG JUANDA</h4>
+            </div>
+        """, unsafe_allow_html=True)
+
+        st.markdown("<hr>", unsafe_allow_html=True)
 
     # ===== MENU =====
     menu = st.radio(
@@ -694,6 +696,7 @@ elif st.session_state.page == "generate":
 
     if st.button("Generate Dummy METAR"):
         st.success("Data berhasil digenerate!")
+
 
 
 
