@@ -176,6 +176,35 @@ tbody td {
     div.stDownloadButton > button:hover {
         background: linear-gradient(90deg,#00CC88,#00FFAA);
     }
+
+    /* =========================
+   DATE & TIME INPUT DARK
+========================= */
+
+div[data-baseweb="input"] {
+    background-color: #111827 !important;
+}
+
+div[data-baseweb="input"] input {
+    background-color: #111827 !important;
+    color: #E5E7EB !important;
+}
+
+div[data-baseweb="select"] {
+    background-color: #111827 !important;
+    color: #E5E7EB !important;
+}
+
+div[data-baseweb="select"] div {
+    background-color: #111827 !important;
+    color: #E5E7EB !important;
+}
+
+/* Dropdown calendar popup */
+div[role="dialog"] {
+    background-color: #0F172A !important;
+    color: #E5E7EB !important;
+}
 </style>
 """, unsafe_allow_html=True)
 # =========================
@@ -884,6 +913,7 @@ TREND   : {trend_text}
     
         else:
             st.warning("Masukkan kode METAR terlebih dahulu.")
+
 
 
 
