@@ -679,7 +679,7 @@ TREND   : {trend_text}
 
     with open(CSV_FILE, "rb") as file:
         st.download_button(
-            label="⬇ Download METAR History (CSV)",
+            label="⬇ Download METAR Record (CSV)",
             data=file,
             file_name="metar_history.csv",
             mime="text/csv",
@@ -695,6 +695,7 @@ elif menu == "⚙️ Generate Data":
 
     if st.button("Generate Dummy METAR"):
         st.success("Data berhasil digenerate!")
+
 
 
 
