@@ -8,10 +8,22 @@ CSV_FILE = "metar_history.csv"
 FONNTE_TOKEN = os.getenv("FONNTE_TOKEN")
 
 def get_metar(station):
-    url = f"https://tgftp.nws.noaa.gov/data/observations/metar/stations/{station}.TXT"
-    r = requests.get(url, timeout=10)
+    url = f"https://aviationweather.gov/api/data/metar?ids=WARR&format=raw"
+    
+    r = requests.get(
+        url,
+        timeout=10,
+        headers={
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache"
+        }
+    )
+
     if r.status_code == 200:
-        return r.text.strip().split("\n")[-1]
+        lines = r.text.strip().split("\n")
+        print("RAW NOAA:", lines)
+        return lines[-1]
+
     return None
 
 def parse_tempo_section(metar):
