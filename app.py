@@ -856,7 +856,7 @@ TREND   : {parsed['trend']}
         """
 
         components.html(copy_html, height=120)
-            st.code(qam_text)
+    st.code(qam_text)
 
             # ===== INTERPRETASI =====
             narrative = generate_metar_narrative(parsed, tempo)
@@ -866,4 +866,5 @@ TREND   : {parsed['trend']}
 
         else:
             st.warning("Masukkan kode METAR terlebih dahulu.")
+
 
