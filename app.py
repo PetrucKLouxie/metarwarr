@@ -56,6 +56,18 @@ section[data-testid="stSidebar"] {
 section[data-testid="stSidebar"] * {
     color: #E5E7EB !important;
 }
+section[data-testid="stSidebar"] div[role="radiogroup"] label {
+    font-size: 20px !important;
+    font-weight: 600 !important;
+    display: block;
+    padding: 12px 10px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+    background-color: #1F2937;
+}
 
 /* Input di sidebar */
 section[data-testid="stSidebar"] input {
@@ -231,7 +243,7 @@ with st.sidebar:
     # ===== MENU =====
     menu = st.radio(
         "",
-        ["📊 Dashboard", "⚙️ Generate Data"],
+        ["Dashboard", "Data"],
         label_visibility="collapsed"
     )
 
@@ -695,6 +707,7 @@ elif menu == "⚙️ Generate Data":
 
     if st.button("Generate Dummy METAR"):
         st.success("Data berhasil digenerate!")
+
 
 
 
