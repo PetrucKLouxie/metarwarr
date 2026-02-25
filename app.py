@@ -802,75 +802,76 @@ REMARKS : NIL
 TREND   : {trend_text}
 """
 
-    st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
+            st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
 # =========================
 # FORMAT QAM CENTERED CLEAN
 # =========================
 
-    st.markdown("<hr style='border:1px solid #1F2937;'>", unsafe_allow_html=True)
-    st.markdown("<h3 style='text-align:center;'>🧾 Format QAM</h3>", unsafe_allow_html=True)
+            st.markdown("<hr style='border:1px solid #1F2937;'>", unsafe_allow_html=True)
+            st.markdown("<h3 style='text-align:center;'>🧾 Format QAM</h3>", unsafe_allow_html=True)
 
-    clean_qam = qam_report.replace("`", "").strip()
+            clean_qam = qam_report.replace("`", "").strip()
 
-    st.markdown(f"""
-    <div style="
-    max-width:750px;
-    margin:40px auto 20px auto;
-    background:linear-gradient(135deg,#0F172A,#111827);
-    padding:35px;
-    border-radius:25px;
-    box-shadow:0 15px 40px rgba(0,0,0,0.6);
-    border:1px solid #1F2937;
-    font-family:monospace;
-    color:#00FFAA;
-    white-space:pre-wrap;
-    line-height:1.6;
-    ">
-    {clean_qam}
-    </div>
-    """, unsafe_allow_html=True)
+            st.markdown(f"""
+            <div style="
+            max-width:750px;
+            margin:40px auto 20px auto;
+            background:linear-gradient(135deg,#0F172A,#111827);
+            padding:35px;
+            border-radius:25px;
+            box-shadow:0 15px 40px rgba(0,0,0,0.6);
+            border:1px solid #1F2937;
+            font-family:monospace;
+            color:#00FFAA;
+            white-space:pre-wrap;
+            line-height:1.6;
+            ">
+            {clean_qam}
+            </div>
+            """, unsafe_allow_html=True)
 
-    col1, col2, col3 = st.columns([2,3,2])
+            col1, col2, col3 = st.columns([2,3,2])
 
-    with col2:
+            with col2:
 
-        safe_qam = qam_report.replace("`", "\\`")
+                safe_qam = qam_report.replace("`", "\\`")
 
-        copy_html = f"""
-        <div style="text-align:center; margin-top:20px;">
-            <button onclick="copyText()" 
-                style="
-                background: linear-gradient(90deg,#00FFAA,#00CC88);
-                color: black;
-                border: none;
-                padding: 12px 25px;
-                border-radius: 12px;
-                font-weight: bold;
-                cursor: pointer;
-                ">
-                📋 Copy QAM
-            </button>
-        </div>
+                copy_html = f"""
+                <div style="text-align:center; margin-top:20px;">
+                    <button onclick="copyText()" 
+                        style="
+                        background: linear-gradient(90deg,#00FFAA,#00CC88);
+                        color: black;
+                        border: none;
+                        padding: 12px 25px;
+                        border-radius: 12px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        ">
+                        📋 Copy QAM
+                    </button>
+                </div>
 
-        <script>
-        function copyText() {{
-            const text = `{safe_qam}`;
-            navigator.clipboard.writeText(text).then(function() {{
-                alert("QAM berhasil dicopy!");
-            }});
-        }}
-        </script>
-        """
+                <script>
+                function copyText() {{
+                    const text = `{safe_qam}`;
+                    navigator.clipboard.writeText(text).then(function() {{
+                        alert("QAM berhasil dicopy!");
+                    }});
+                }}
+                </script>
+                """
 
-        components.html(copy_html, height=120)
+                components.html(copy_html, height=120)
             # ===== INTERPRETASI =====
-    narrative = generate_metar_narrative(parsed, tempo)
+            narrative = generate_metar_narrative(parsed, tempo)
     
-    st.markdown("### 🧠 Interpretasi")
-    st.write(narrative)
+            st.markdown("### 🧠 Interpretasi")
+            st.write(narrative)
     
-else:
-    st.warning("Masukkan kode METAR terlebih dahulu.")
+        else:
+            st.warning("Masukkan kode METAR terlebih dahulu.")
+
 
 
 
