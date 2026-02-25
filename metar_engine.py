@@ -277,3 +277,6 @@ TREND   : {trend_text}
 
 else:
     print("No new METAR.")
+
+metar_data = get_metar(STATION_CODE)
+print("METAR FROM API:", metar_data)
