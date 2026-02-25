@@ -779,29 +779,31 @@ elif st.session_state.page == "generate":
                 height = int(parsed["cloud"][3:6]) * 100
                 cloud = f"{amount} {height}FT"
 
-            qam_text = f"""MET REPORT (QAM)
-BANDARA JUANDA {parsed['station']}
+            qam_report = f"""MET REPORT (QAM)
+BANDARA JUANDA {latest['station']}
 DATE : {date_str}
 TIME : {time_str} UTC
 ========================
 WIND    : {wind}
 VIS     : {vis}
-WEATHER : {parsed['weather']}
+WEATHER : {parsed['weather'] if parsed['weather'] else 'NIL'}
 CLOUD   : {cloud}
 TT/TD   : {parsed['temperature_c']}/{parsed['dewpoint_c']}
 QNH     : {parsed['pressure_hpa']} MB
+QFE     : {parsed['pressure_hpa']} MB
 REMARKS : NIL
-TREND   : {parsed['trend']}
+TREND   : {trend_text}
 """
 
-            st.markdown("### 🧾 Format QAM")
-            st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
+    st.markdown("<hr style='border: 1px solid #333;'>", unsafe_allow_html=True)
 # =========================
 # FORMAT QAM CENTERED CLEAN
 # =========================
 
     st.markdown("<hr style='border:1px solid #1F2937;'>", unsafe_allow_html=True)
     st.markdown("<h3 style='text-align:center;'>🧾 Format QAM</h3>", unsafe_allow_html=True)
+
+    clean_qam = qam_report.replace("`", "").strip()
 
     st.markdown(f"""
     <div style="
@@ -817,6 +819,7 @@ TREND   : {parsed['trend']}
     white-space:pre-wrap;
     line-height:1.6;
     ">
+    {clean_qam}
     </div>
     """, unsafe_allow_html=True)
 
@@ -853,8 +856,6 @@ TREND   : {parsed['trend']}
         """
 
         components.html(copy_html, height=120)
-    st.code(qam_text)
-
             # ===== INTERPRETASI =====
     narrative = generate_metar_narrative(parsed, tempo)
     
@@ -863,6 +864,7 @@ TREND   : {parsed['trend']}
     
 else:
     st.warning("Masukkan kode METAR terlebih dahulu.")
+
 
 
 
