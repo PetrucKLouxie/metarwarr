@@ -55,9 +55,6 @@ section[data-testid="stSidebar"] {
 
 section[data-testid="stSidebar"] * {
     color: #E5E7EB !important;
-    font-size: 20px !important;
-    padding: 12px 10px;
-    transition: 0.3s;
 }
 
 /* Input di sidebar */
@@ -698,6 +695,7 @@ elif menu == "⚙️ Generate Data":
 
     if st.button("Generate Dummy METAR"):
         st.success("Data berhasil digenerate!")
+
 
 
 
