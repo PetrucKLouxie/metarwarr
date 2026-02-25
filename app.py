@@ -817,7 +817,6 @@ TREND   : {parsed['trend']}
     white-space:pre-wrap;
     line-height:1.6;
     ">
-    {clean_qam}
     </div>
     """, unsafe_allow_html=True)
 
@@ -864,6 +863,7 @@ TREND   : {parsed['trend']}
     
 else:
     st.warning("Masukkan kode METAR terlebih dahulu.")
+
 
 
 
