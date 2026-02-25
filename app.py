@@ -279,10 +279,10 @@ else:
 # PAGE ROUTING
 # =========================
 
-if menu == "📊 Dashboard":
+if menu == "Dashboard":
     st.session_state.page = "dashboard"
 
-elif menu == "⚙️ Generate Data":
+elif menu == "Generate Data":
     st.session_state.page = "generate"
 
 # =========================
@@ -699,4 +699,5 @@ elif st.session_state.page == "generate":
 
     if st.button("Generate Dummy METAR"):
         st.success("Data berhasil digenerate!")
+
 
