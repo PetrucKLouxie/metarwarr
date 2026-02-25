@@ -289,6 +289,9 @@ elif menu == "⚙️ Generate Data":
 # SESSION STATE INIT
 # =========================
 
+if "page" not in st.session_state:
+    st.session_state.page = "dashboard"
+
 if "last_wa_sent" not in st.session_state:
     st.session_state.last_wa_sent = None
 
@@ -696,6 +699,7 @@ elif st.session_state.page == "generate":
 
     if st.button("Generate Dummy METAR"):
         st.success("Data berhasil digenerate!")
+
 
 
 
