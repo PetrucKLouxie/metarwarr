@@ -764,7 +764,7 @@ elif st.session_state.page == "generate":
 
         if user_metar:
 
-            parsed = parse_metar(user_metar)   # pakai fungsi parsing kamu
+             parsed = parse_metar(latest["metar"])   # pakai fungsi parsing kamu
 
             # ===== FORMAT QAM =====
             date_str = f"{parsed['day']}/{datetime.utcnow().strftime('%m/%Y')}"
@@ -778,6 +778,13 @@ elif st.session_state.page == "generate":
                 amount = parsed["cloud"][:3]
                 height = int(parsed["cloud"][3:6]) * 100
                 cloud = f"{amount} {height}FT"
+            if parsed["weather"] in ["TSRA","+TSRA"]:
+                status_color = "#DC2626"
+            elif parsed["visibility_m"] and parsed["visibility_m"] < 5000:
+                status_color = "#F59E0B"
+            trend_text = parsed["trend"] if parsed["trend"] else "NIL"
+            if tempo:
+                trend_text = f"TEMPO TL{tempo['until']} {tempo['visibility']} {tempo['weather']}"
 
             qam_report = f"""MET REPORT (QAM)
 BANDARA JUANDA {latest['station']}
@@ -864,6 +871,7 @@ TREND   : {trend_text}
     
 else:
     st.warning("Masukkan kode METAR terlebih dahulu.")
+
 
 
 
