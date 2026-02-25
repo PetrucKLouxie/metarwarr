@@ -700,36 +700,3 @@ elif st.session_state.page == "generate":
     if st.button("Generate Dummy METAR"):
         st.success("Data berhasil digenerate!")
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
