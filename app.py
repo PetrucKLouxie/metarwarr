@@ -65,10 +65,6 @@ section[data-testid="stSidebar"] div[role="radiogroup"] label {
     transition: 0.3s;
 }
 
-section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
-    background-color: #1F2937;
-}
-
 /* Input di sidebar */
 section[data-testid="stSidebar"] input {
     background-color: #1F2937 !important;
@@ -707,6 +703,7 @@ elif menu == "⚙️ Generate Data":
 
     if st.button("Generate Dummy METAR"):
         st.success("Data berhasil digenerate!")
+
 
 
 
