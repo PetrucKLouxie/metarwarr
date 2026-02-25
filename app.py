@@ -231,26 +231,26 @@ with st.sidebar:
         st.markdown("<hr>", unsafe_allow_html=True)
 
     # ===== MENU =====
-    menu = st.radio(
-        "",
-        ["Dashboard", "Generate Data"],
-        label_visibility="collapsed"
-    )
+        menu = st.radio(
+            "",
+            ["Dashboard", "Generate Data"],
+            label_visibility="collapsed"
+        )
 
-    st.markdown("<hr>", unsafe_allow_html=True)
+        st.markdown("<hr>", unsafe_allow_html=True)
 
     # ===== ADMIN PANEL =====
-    st.markdown("### 🔐 Admin Panel")
+        st.markdown("### 🔐 Admin Panel")
 
-    if not st.session_state.logged_in:
-        if st.button("Admin Login"):
-            st.session_state.show_login = True
+        if not st.session_state.logged_in:
+            if st.button("Admin Login"):
+                st.session_state.show_login = True
 
-    if st.session_state.logged_in:
-        st.success("Admin Active")
-        if st.button("Logout", key="logout_sidebar"):
-            st.session_state.logged_in = False
-            st.rerun()
+        if st.session_state.logged_in:
+            st.success("Admin Active")
+            if st.button("Logout", key="logout_sidebar"):
+                st.session_state.logged_in = False
+                st.rerun()
 
 # Login form muncul kalau ditekan
 if st.session_state.show_login and not st.session_state.logged_in:
@@ -696,6 +696,7 @@ elif st.session_state.page == "generate":
 
     if st.button("Generate Dummy METAR"):
         st.success("Data berhasil digenerate!")
+
 
 
 
