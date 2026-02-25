@@ -7,6 +7,7 @@ STATION_CODE = "WARR"
 CSV_FILE = "metar_history.csv"
 FONNTE_TOKEN = os.getenv("FONNTE_TOKEN")
 
+def get_metar(station):
     url = f"https://aviationweather.gov/api/data/metar?ids={station}&format=raw"
 
     try:
