@@ -213,8 +213,31 @@ if "logged_in" not in st.session_state:
 if "show_login" not in st.session_state:
     st.session_state.show_login = False
 
+# =========================
+# SIDEBAR MENU SYSTEM
+# =========================
 with st.sidebar:
 
+    # ===== LOGO CENTER =====
+    st.markdown("""
+        <div style='text-align:center;'>
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6e/Logo_BMKG.png" width="110">
+            <h4 style='margin-top:10px;'>BMKG JUANDA</h4>
+        </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("<hr>", unsafe_allow_html=True)
+
+    # ===== MENU =====
+    menu = st.radio(
+        "",
+        ["📊 Dashboard", "⚙️ Generate Data"],
+        label_visibility="collapsed"
+    )
+
+    st.markdown("<hr>", unsafe_allow_html=True)
+
+    # ===== ADMIN PANEL =====
     st.markdown("### 🔐 Admin Panel")
 
     if not st.session_state.logged_in:
@@ -223,7 +246,7 @@ with st.sidebar:
 
     if st.session_state.logged_in:
         st.success("Admin Active")
-        if st.button("Logout", key= "logout_sidebar"):
+        if st.button("Logout", key="logout_sidebar"):
             st.session_state.logged_in = False
             st.rerun()
 
@@ -249,6 +272,16 @@ if st.session_state.logged_in:
     st.markdown("🟢 **MODE: ADMIN**")
 else:
     st.markdown("🌍 **MODE: PUBLIC VIEW**")
+
+# =========================
+# PAGE ROUTING
+# =========================
+
+if menu == "📊 Dashboard":
+    st.session_state.page = "dashboard"
+
+elif menu == "⚙️ Generate Data":
+    st.session_state.page = "generate"
 
 # =========================
 # SESSION STATE INIT
@@ -454,6 +487,11 @@ if len(df_history) > 0:
     narrative = generate_metar_narrative(parsed, tempo)
 
     # =========================
+# DASHBOARD PAGE
+# =========================
+if menu == "📊 Dashboard":
+
+    # =========================
     # 1️⃣ RAW METAR
     # =========================
     st.subheader(f"📡 METAR Terbaru - {latest['station']}")
@@ -647,6 +685,16 @@ with st.expander("📜 METAR History ", expanded=False):
             mime="text/csv",
             use_container_width=True
         )
+# =========================
+# GENERATE DATA PAGE
+# =========================
+elif menu == "⚙️ Generate Data":
+
+    st.title("⚙️ Generate Data")
+    st.write("Fitur generate data sementara.")
+
+    if st.button("Generate Dummy METAR"):
+        st.success("Data berhasil digenerate!")
 
 
 
