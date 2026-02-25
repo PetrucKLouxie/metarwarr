@@ -231,7 +231,7 @@ with st.sidebar:
     # ===== MENU =====
     menu = st.radio(
         "",
-        ["📊 Dashboard", "⚙️ Generate Data"],
+        ["Dashboard", "Generate Data"],
         label_visibility="collapsed"
     )
 
@@ -694,6 +694,7 @@ elif st.session_state.page == "generate":
 
     if st.button("Generate Dummy METAR"):
         st.success("Data berhasil digenerate!")
+
 
 
 
