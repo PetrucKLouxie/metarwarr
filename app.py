@@ -764,7 +764,7 @@ elif st.session_state.page == "generate":
 
         if user_metar:
 
-             parsed = parse_metar(latest["metar"])   # pakai fungsi parsing kamu
+            parsed = parse_metar(latest["metar"])   # pakai fungsi parsing kamu
 
             # ===== FORMAT QAM =====
             date_str = f"{parsed['day']}/{datetime.utcnow().strftime('%m/%Y')}"
@@ -871,6 +871,7 @@ TREND   : {trend_text}
     
         else:
             st.warning("Masukkan kode METAR terlebih dahulu.")
+
 
 
 
