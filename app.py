@@ -6,6 +6,7 @@ import os
 import time
 from datetime import datetime
 import plotly.express as px
+from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="METAR Monitoring", layout="wide")
 
@@ -283,3 +284,4 @@ st.download_button(
 # ==========================
 
 st.autorefresh(interval=60000)
+
