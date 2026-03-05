@@ -73,45 +73,6 @@ else:
     df_history = pd.DataFrame(columns=["time", "metar"])
 
 
-# ==============================
-# UPDATE METAR
-# ==============================
-
-def update_metar():
-
-    global df_history
-
-    metar = get_metar(STATION)
-
-    if metar is None:
-        return None
-
-    if len(df_history) == 0 or metar != df_history.iloc[-1]["metar"]:
-
-        parsed = parse_metar(metar)
-
-        new = {
-            "time": datetime.utcnow(),
-            "metar": metar
-        }
-
-        df_history.loc[len(df_history)] = new
-        df_history.to_csv(CSV_FILE, index=False)
-
-        # KIRIM WHATSAPP
-        message = format_wa_message(metar, parsed)
-        send_whatsapp(message)
-
-    return metar
-
-
-@st.cache_data(ttl=60)
-def get_latest_metar():
-    return update_metar()
-
-
-metar = get_latest_metar()
-
 parsed = parse_metar(metar)
 # ==============================
 # WA
@@ -156,6 +117,45 @@ QFE     : {parsed.get("qnh","-")} MB
 REMARKS : NIL
 TREND   : {parsed.get("trend","-")}
 """
+# ==============================
+# UPDATE METAR
+# ==============================
+
+def update_metar():
+
+    global df_history
+
+    metar = get_metar(STATION)
+
+    if metar is None:
+        return None
+
+    if len(df_history) == 0 or metar != df_history.iloc[-1]["metar"]:
+
+        parsed = parse_metar(metar)
+
+        new = {
+            "time": datetime.utcnow(),
+            "metar": metar
+        }
+
+        df_history.loc[len(df_history)] = new
+        df_history.to_csv(CSV_FILE, index=False)
+
+        # KIRIM WHATSAPP
+        message = format_wa_message(metar, parsed)
+        send_whatsapp(message)
+
+    return metar
+
+
+@st.cache_data(ttl=60)
+def get_latest_metar():
+    return update_metar()
+
+
+metar = get_latest_metar()
+
 # ==============================
 # HEADER
 # ==============================
@@ -277,3 +277,4 @@ file_name="metar_history.csv"
 # ==============================
 
 st.autorefresh(interval=60000)
+
