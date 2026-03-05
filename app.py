@@ -1,21 +1,49 @@
 import streamlit as st
-import requests
 import pandas as pd
-import os
+import requests
 import re
+import os
+import time
 from datetime import datetime
+import plotly.express as px
 
-st.set_page_config(page_title="METAR Monitor WARR", layout="wide")
+st.set_page_config(page_title="METAR Monitoring", layout="wide")
 
-CSV_FILE = "metar_history.csv"
 STATION = "WARR"
+CSV_FILE = "metar_history.csv"
 
-# ==============================
-# GET METAR NOAA
-# ==============================
+# ==========================
+# WHATSAPP
+# ==========================
+
+def send_whatsapp(msg):
+
+    token = st.secrets["FONNTE_TOKEN"]
+    target = st.secrets["TARGET_WA"]
+
+    url = "https://api.fonnte.com/send"
+
+    payload = {
+        "target": target,
+        "message": msg
+    }
+
+    headers = {"Authorization": token}
+
+    try:
+        requests.post(url, data=payload, headers=headers)
+    except:
+        pass
+
+
+# ==========================
+# GET METAR
+# ==========================
 
 def get_metar(station):
+
     url = f"https://tgftp.nws.noaa.gov/data/observations/metar/stations/{station}.TXT"
+
     r = requests.get(url, timeout=10)
 
     if r.status_code == 200:
@@ -25,9 +53,9 @@ def get_metar(station):
     return None
 
 
-# ==============================
+# ==========================
 # PARSE METAR
-# ==============================
+# ==========================
 
 def parse_metar(metar):
 
@@ -35,245 +63,223 @@ def parse_metar(metar):
 
     wind = re.search(r"(\d{3})(\d{2})KT", metar)
     if wind:
-        data["wind_dir"] = wind.group(1)
-        data["wind_speed"] = wind.group(2)
+        data["wind_dir"] = int(wind.group(1))
+        data["wind_speed"] = int(wind.group(2))
 
     vis = re.search(r" (\d{4}) ", metar)
     if vis:
-        data["vis"] = vis.group(1)
+        data["vis"] = int(vis.group(1))
 
     temp = re.search(r" (\d{2})/(\d{2}) ", metar)
     if temp:
-        data["temp"] = temp.group(1)
-        data["dew"] = temp.group(2)
+        data["temp"] = int(temp.group(1))
+        data["dew"] = int(temp.group(2))
 
     qnh = re.search(r"Q(\d{4})", metar)
     if qnh:
-        data["qnh"] = qnh.group(1)
+        data["qnh"] = int(qnh.group(1))
 
     cloud = re.search(r"(FEW|SCT|BKN|OVC)\d{3}", metar)
     if cloud:
         data["cloud"] = cloud.group()
 
-    if "NOSIG" in metar:
-        data["trend"] = "NOSIG"
-    else:
-        data["trend"] = "-"
+    data["ts"] = "TS" in metar or "CB" in metar
 
     return data
 
 
-# ==============================
+# ==========================
 # LOAD HISTORY
-# ==============================
+# ==========================
 
 if os.path.exists(CSV_FILE):
-    df_history = pd.read_csv(CSV_FILE)
+    df = pd.read_csv(CSV_FILE)
 else:
-    df_history = pd.DataFrame(columns=["time", "metar"])
-    
-@st.cache_data(ttl=60)
-def get_latest_metar():
-    return update_metar()
+    df = pd.DataFrame(columns=[
+        "time","metar","wind_dir","wind_speed",
+        "vis","temp","dew","qnh"
+    ])
 
 
-metar = get_latest_metar()
-
-parsed = parse_metar(metar)
-# ==============================
-# WA
-# ==============================
-def send_whatsapp(message):
-
-    token = st.secrets["FONNTE_TOKEN"]
-    target = st.secrets["TARGET_WA"]
-
-    url = "https://api.fonnte.com/send"
-
-    payload = {
-        "target": target,
-        "message": message
-    }
-
-    headers = {
-        "Authorization": token
-    }
-
-    requests.post(url, data=payload, headers=headers)
-    
-def format_wa_message(metar, parsed):
-    time_now = datetime.utcnow()
-    
-    return f"""
-MET REPORT (QAM)
-
-BANDARA JUANDA WARR
-DATE : {time_now.strftime("%d/%m/%Y")}
-TIME : {time_now.strftime("%H:%M")} UTC
-
-=========================
-
-WIND    : {parsed.get("wind_dir","-")}/{parsed.get("wind_speed","-")} KT
-VIS     : {parsed.get("vis","-")} M
-WEATHER : NIL
-CLOUD   : {parsed.get("cloud","-")}
-T/Td    : {parsed.get("temp","-")}/{parsed.get("dew","-")}
-QNH     : {parsed.get("qnh","-")} MB
-QFE     : {parsed.get("qnh","-")} MB
-REMARKS : NIL
-TREND   : {parsed.get("trend","-")}
-"""
-# ==============================
+# ==========================
 # UPDATE METAR
-# ==============================
+# ==========================
 
 def update_metar():
 
-    global df_history
+    global df
 
     metar = get_metar(STATION)
 
     if metar is None:
         return None
 
-    if len(df_history) == 0 or metar != df_history.iloc[-1]["metar"]:
+    if len(df) == 0 or metar != df.iloc[-1]["metar"]:
 
         parsed = parse_metar(metar)
 
         new = {
             "time": datetime.utcnow(),
-            "metar": metar
+            "metar": metar,
+            "wind_dir": parsed.get("wind_dir"),
+            "wind_speed": parsed.get("wind_speed"),
+            "vis": parsed.get("vis"),
+            "temp": parsed.get("temp"),
+            "dew": parsed.get("dew"),
+            "qnh": parsed.get("qnh")
         }
 
-        df_history.loc[len(df_history)] = new
-        df_history.to_csv(CSV_FILE, index=False)
+        df.loc[len(df)] = new
+        df.to_csv(CSV_FILE, index=False)
 
-        # KIRIM WHATSAPP
-        message = format_wa_message(metar, parsed)
-        send_whatsapp(message)
+        alert = ""
+
+        if parsed.get("vis",9999) < 3000:
+            alert += "⚠ Visibility rendah\n"
+
+        if parsed.get("wind_speed",0) > 20:
+            alert += "⚠ Wind >20 kt\n"
+
+        if parsed.get("ts"):
+            alert += "⚠ Thunderstorm detected\n"
+
+        # HOLDING DETECTION
+        if parsed.get("vis",9999) < 5000 and parsed.get("wind_speed",0) > 15:
+            alert += "✈ Potensi HOLDING\n"
+
+        msg = f"""
+METAR UPDATE {STATION}
+
+{metar}
+
+Wind : {parsed.get('wind_dir')}/{parsed.get('wind_speed')} kt
+Vis  : {parsed.get('vis')} m
+Temp : {parsed.get('temp')}/{parsed.get('dew')}
+QNH  : {parsed.get('qnh')}
+
+{alert}
+"""
+
+        send_whatsapp(msg)
 
     return metar
 
-# ==============================
+
+@st.cache_data(ttl=60)
+def get_latest():
+    return update_metar()
+
+
+metar = get_latest()
+parsed = parse_metar(metar)
+
+
+# ==========================
 # HEADER
-# ==============================
+# ==========================
 
-st.markdown(
-"""
-# ✈️ METAR REAL-TIME MONITORING SYSTEM
-### 📍 JUANDA INTERNATIONAL AIRPORT (WARR)
-Surabaya – Indonesia
-""")
+st.title("✈ METAR REAL-TIME MONITORING SYSTEM")
+st.caption("JUANDA INTERNATIONAL AIRPORT (WARR)")
 
-st.write("🟢 **MODE: PUBLIC VIEW**")
+st.write("🟢 MODE: PUBLIC VIEW")
 
-# ==============================
+
+# ==========================
 # METAR TEXT
-# ==============================
+# ==========================
 
-st.subheader("📡 METAR Terbaru - WARR")
+st.subheader("METAR Terbaru")
 
 st.code(metar)
 
-st.success("● STATUS: OPERATIONAL")
 
-# ==============================
+# ==========================
 # DETAIL CUACA
-# ==============================
+# ==========================
 
-st.subheader("📊 Detail Cuaca")
+c1,c2,c3 = st.columns(3)
+c4,c5,c6 = st.columns(3)
 
-col1, col2, col3 = st.columns(3)
-col4, col5, col6 = st.columns(3)
+c1.metric("Temperature", parsed.get("temp"))
+c2.metric("Wind Dir", parsed.get("wind_dir"))
+c3.metric("Visibility", parsed.get("vis"))
 
-col1.metric("🌡️ Suhu (°C)", parsed.get("temp","-"))
-col2.metric("🧭 Wind Direction", parsed.get("wind_dir","-"))
-col3.metric("👁 Visibility (m)", parsed.get("vis","-"))
+c4.metric("Dew Point", parsed.get("dew"))
+c5.metric("Wind Speed", parsed.get("wind_speed"))
+c6.metric("Pressure", parsed.get("qnh"))
 
-col4.metric("💧 Dew Point (°C)", parsed.get("dew","-"))
-col5.metric("💨 Wind Speed (KT)", parsed.get("wind_speed","-"))
-col6.metric("📈 Pressure (hPa)", parsed.get("qnh","-"))
 
-st.divider()
+# ==========================
+# ALERT
+# ==========================
 
-# ==============================
-# FORMAT QAM
-# ==============================
+st.subheader("Weather Alert")
 
-st.subheader("📄 Format QAM")
+alerts = []
 
-time_now = datetime.utcnow()
+if parsed.get("vis",9999) < 3000:
+    alerts.append("Visibility rendah")
 
-qam = f"""
-MET REPORT (QAM)
+if parsed.get("wind_speed",0) > 20:
+    alerts.append("Wind kuat")
 
-BANDARA JUANDA WARR
-DATE : {time_now.strftime("%d/%m/%Y")}
-TIME : {time_now.strftime("%H:%M")} UTC
+if parsed.get("ts"):
+    alerts.append("Thunderstorm / CB")
 
-=========================
+if parsed.get("vis",9999) < 5000 and parsed.get("wind_speed",0) > 15:
+    alerts.append("Potensi holding")
 
-WIND    : {parsed.get("wind_dir","-")}/{parsed.get("wind_speed","-")} KT
-VIS     : {parsed.get("vis","-")} M
-WEATHER : NIL
-CLOUD   : {parsed.get("cloud","-")}
-T/Td    : {parsed.get("temp","-")}/{parsed.get("dew","-")}
-QNH     : {parsed.get("qnh","-")} MB
-QFE     : {parsed.get("qnh","-")} MB
-REMARKS : NIL
-TREND   : {parsed.get("trend","-")}
-"""
+if alerts:
+    for a in alerts:
+        st.warning(a)
+else:
+    st.success("No significant weather")
 
-st.code(qam)
 
-st.download_button(
-"📥 Copy QAM",
-qam,
-file_name="QAM.txt"
-)
+# ==========================
+# GRAPH 24 JAM
+# ==========================
 
-st.divider()
+st.subheader("Trend Cuaca")
 
-# ==============================
-# INTERPRETASI
-# ==============================
+if len(df) > 5:
 
-st.subheader("🧠 Interpretasi METAR")
+    fig = px.line(
+        df,
+        x="time",
+        y="temp",
+        title="Temperature Trend"
+    )
 
-interpretasi = f"""
-Observasi cuaca di Bandara WARR pada waktu {time_now.strftime("%H:%M")} UTC menunjukkan kondisi berikut:
-Angin dari arah {parsed.get("wind_dir","-")}° dengan kecepatan {parsed.get("wind_speed","-")} knot.
-Jarak pandang sekitar {parsed.get("vis","-")} meter.
-Awan {parsed.get("cloud","-")}.
-Suhu {parsed.get("temp","-")}°C dengan titik embun {parsed.get("dew","-")}°C.
-Tekanan udara {parsed.get("qnh","-")} hPa.
-"""
+    st.plotly_chart(fig, use_container_width=True)
 
-if parsed.get("trend") == "NOSIG":
-    interpretasi += "Tidak ada perubahan signifikan dalam waktu dekat."
+    fig2 = px.line(
+        df,
+        x="time",
+        y="qnh",
+        title="Pressure Trend"
+    )
 
-st.write(interpretasi)
+    st.plotly_chart(fig2, use_container_width=True)
 
-st.divider()
 
-# ==============================
+# ==========================
 # HISTORY
-# ==============================
+# ==========================
 
-st.subheader("📜 METAR History")
+st.subheader("METAR History")
 
-st.dataframe(df_history)
+st.dataframe(df)
 
 st.download_button(
-"⬇ Download METAR Record (CSV)",
-df_history.to_csv(index=False),
-file_name="metar_history.csv"
+    "Download CSV",
+    df.to_csv(index=False),
+    file_name="metar_history.csv"
 )
 
-# ==============================
+
+# ==========================
 # AUTO REFRESH
-# ==============================
+# ==========================
 
 st.autorefresh(interval=60000)
-
-
