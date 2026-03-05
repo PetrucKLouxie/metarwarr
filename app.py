@@ -283,5 +283,6 @@ st.download_button(
 # AUTO REFRESH
 # ==========================
 
-st.autorefresh(interval=60000)
+st_autorefresh(interval=30000, key="metar_refresh")
+
 
