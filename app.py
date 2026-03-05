@@ -71,7 +71,13 @@ if os.path.exists(CSV_FILE):
     df_history = pd.read_csv(CSV_FILE)
 else:
     df_history = pd.DataFrame(columns=["time", "metar"])
+    
+@st.cache_data(ttl=60)
+def get_latest_metar():
+    return update_metar()
 
+
+metar = get_latest_metar()
 
 parsed = parse_metar(metar)
 # ==============================
@@ -147,14 +153,6 @@ def update_metar():
         send_whatsapp(message)
 
     return metar
-
-
-@st.cache_data(ttl=60)
-def get_latest_metar():
-    return update_metar()
-
-
-metar = get_latest_metar()
 
 # ==============================
 # HEADER
@@ -277,4 +275,5 @@ file_name="metar_history.csv"
 # ==============================
 
 st.autorefresh(interval=60000)
+
 
