@@ -241,28 +241,6 @@ else:
 # GRAPH 24 JAM
 # ==========================
 
-st.subheader("Trend Cuaca")
-
-if len(df) > 5:
-
-    fig = px.line(
-        df,
-        x="time",
-        y="temp",
-        title="Temperature Trend"
-    )
-
-    st.plotly_chart(fig, use_container_width=True)
-
-    fig2 = px.line(
-        df,
-        x="time",
-        y="qnh",
-        title="Pressure Trend"
-    )
-
-    st.plotly_chart(fig2, use_container_width=True)
-
 
 # ==========================
 # HISTORY
@@ -284,5 +262,6 @@ st.download_button(
 # ==========================
 
 st_autorefresh(interval=30000, key="metar_refresh")
+
 
 
