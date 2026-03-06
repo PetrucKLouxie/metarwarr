@@ -199,7 +199,51 @@ TREND   : {parsed.get("trend")}
 
     return qam
 
+# =========================
+# INTERPRETASI METAR
+# =========================
 
+def interpret_metar(parsed):
+
+    text = []
+
+    vis = parsed.get("vis",10000)
+    weather = parsed.get("weather","NIL")
+    cloud = parsed.get("cloud","NIL")
+    wind_speed = parsed.get("wind_speed",0)
+
+    # VISIBILITY
+    if vis >= 8000:
+        text.append("Visibilitas sangat baik dan tidak terdapat pembatas signifikan.")
+    elif vis >= 3000:
+        text.append("Visibilitas cukup baik namun terdapat sedikit reduksi jarak pandang.")
+    else:
+        text.append("Visibilitas rendah yang dapat mempengaruhi operasi penerbangan.")
+
+    # WEATHER
+    if "TS" in weather:
+        text.append("Terdapat aktivitas thunderstorm di sekitar bandara yang berpotensi menimbulkan hujan lebat dan gusty wind.")
+    elif "RA" in weather:
+        text.append("Terdapat hujan yang dapat menyebabkan runway basah dan penurunan visibilitas.")
+    elif "BR" in weather or "FG" in weather:
+        text.append("Kabut atau mist terdeteksi yang dapat mengurangi jarak pandang horizontal.")
+    else:
+        text.append("Tidak terdapat fenomena cuaca signifikan.")
+
+    # CLOUD
+    if "BKN" in cloud or "OVC" in cloud:
+        text.append("Tutupan awan cukup signifikan yang dapat mempengaruhi ceiling penerbangan.")
+    else:
+        text.append("Tutupan awan relatif ringan.")
+
+    # WIND
+    if wind_speed > 20:
+        text.append("Kecepatan angin cukup kuat dan perlu diperhatikan pada saat takeoff maupun landing.")
+    else:
+        text.append("Kecepatan angin relatif normal untuk operasi penerbangan.")
+
+    return " ".join(text)
+    
 # =========================
 # WHATSAPP ALERT
 # =========================
@@ -362,6 +406,15 @@ st.subheader("METAR QAM")
 
 st.code(format_qam(parsed))
 
+# =========================
+# INTERPRETASI CUACA
+# =========================
+
+st.subheader("Interpretasi Kondisi Cuaca")
+
+interpretasi = interpret_metar(parsed)
+
+st.info(interpretasi)
 
 # =========================
 # GRAPH
@@ -416,3 +469,4 @@ st.markdown(
 unsafe_allow_html=True
 
 )
+
