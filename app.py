@@ -710,16 +710,14 @@ futuristic_template = {
 
 if len(df) > 0:
     # Temperature Chart
-    fig = px.line(df, x="time", y="temp", title="🌡️ Temperature Trend",
-                  markers=True, line_color="#00B4D8")
-    fig.update_traces(marker=dict(size=8, color="#00F5D4", line=dict(color="#0077B6", width=2)))
+    fig = px.line(df, x="time", y="temp", title="🌡️ Temperature Trend", markers=True)
+    fig.update_traces(line=dict(color="#00B4D4"), marker=dict(size=8, color="#00F5D4", line=dict(color="#0077B6", width=2)))
     fig.update_layout(**futuristic_template["layout"])
     st.plotly_chart(fig, use_container_width=True)
 
     # Pressure Chart
-    fig2 = px.line(df, x="time", y="qnh", title="🔵 Pressure (QNH) Trend",
-                   markers=True, line_color="#0077B6")
-    fig2.update_traces(marker=dict(size=8, color="#00B4D8", line=dict(color="#00F5D4", width=2)))
+    fig2 = px.line(df, x="time", y="qnh", title="🔵 Pressure (QNH) Trend", markers=True)
+    fig2.update_traces(line=dict(color="#0077B6"), marker=dict(size=8, color="#00B4D8", line=dict(color="#00F5D4", width=2)))
     fig2.update_layout(**futuristic_template["layout"])
     st.plotly_chart(fig2, use_container_width=True)
 
@@ -753,5 +751,3 @@ st.markdown("""
     <p style="font-size: 12px;">Auto-refresh every 60 seconds | Theme: Futuristic Bright</p>
 </div>
 """, unsafe_allow_html=True)
-
-
