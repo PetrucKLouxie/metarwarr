@@ -6,6 +6,7 @@ import os
 import base64
 from datetime import datetime
 import plotly.express as px
+from datetime import datetime
 
 st.set_page_config(page_title="METAR WARR Monitor", layout="wide")
 
@@ -63,9 +64,15 @@ def parse_metar(metar):
     qnh = re.search(r"Q(\d{4})", metar)
     if qnh:
         data["qnh"] = qnh.group(1)
-
+    
     trend = re.search(r"(NOSIG|TEMPO.*)", metar)
     data["trend"] = trend.group(1) if trend else "NIL"
+    
+    time_match = re.search(r" (\d{2})(\d{2})(\d{2})Z ", metar)
+    if time_match:
+        data["day"] = time_match.group(1)
+        data["hour"] = time_match.group(2)
+        data["minute"] = time_match.group(3)
 
     return data
 
@@ -74,9 +81,19 @@ def parse_metar(metar):
 # FORMAT QAM
 # =========================
 
-def format_qam(parsed):
+def get_metar_datetime(parsed):
 
     now = datetime.utcnow()
+
+    day = int(parsed["day"])
+    hour = int(parsed["hour"])
+    minute = int(parsed["minute"])
+
+    return metar_time
+    
+def format_qam(parsed):
+
+    metar_time = get_metar_datetime(parsed)
 
     vis_km = float(parsed.get("vis", 0)) / 1000
 
@@ -85,8 +102,8 @@ def format_qam(parsed):
 
 MET REPORT (QAM)
 BANDARA JUANDA WARR
-DATE : {now.strftime("%d/%m/%Y")}
-TIME : {now.strftime("%H.%M")} UTC
+DATE : {metar_time.strftime("%d/%m/%Y")}
+TIME : {metar_time.strftime("%H.%M")} UTC
 ========================
 WIND    : {parsed.get("wind_dir","-")}°/{parsed.get("wind_speed","-")} KT
 VIS     : {vis_km} KM
@@ -326,3 +343,4 @@ st.markdown(
 """,
 unsafe_allow_html=True
 )
+
