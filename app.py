@@ -8,6 +8,7 @@ import base64
 import math
 from datetime import datetime
 import plotly.express as px
+from streamlit_autorefresh import st_autorefresh
 
 # =========================
 # PAGE CONFIG
@@ -752,4 +753,5 @@ st.markdown("""
     <p style="font-size: 12px;">Auto-refresh every 60 seconds | Theme: Futuristic Bright</p>
 </div>
 """, unsafe_allow_html=True)
+
 
