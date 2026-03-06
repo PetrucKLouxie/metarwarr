@@ -85,9 +85,16 @@ def get_metar_datetime(parsed):
 
     now = datetime.utcnow()
 
-    day = int(parsed["day"])
-    hour = int(parsed["hour"])
-    minute = int(parsed["minute"])
+    try:
+        day = int(parsed.get("day"))
+        hour = int(parsed.get("hour"))
+        minute = int(parsed.get("minute"))
+
+        metar_time = datetime(now.year, now.month, day, hour, minute)
+
+    except:
+        # fallback jika parsing gagal
+        metar_time = now
 
     return metar_time
     
@@ -343,4 +350,5 @@ st.markdown(
 """,
 unsafe_allow_html=True
 )
+
 
