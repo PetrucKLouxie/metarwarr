@@ -3,4 +3,4 @@ pandas
 requests
 plotly
 windrose
-streamlit-autorefresh
+numpy
